@@ -31,3 +31,6 @@ runs/
 results/**/*.jsonl
 results/**/report.html
 out/
+
+# Test tool state
+.jqwik-database
