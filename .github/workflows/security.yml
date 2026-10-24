@@ -71,8 +71,9 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
           set -euo pipefail
-          # GitHub sets the variable to an empty string when the secret is absent.
-          # Dependency-Check then sends that empty key to the NVD and the client rejects it.
+          ./mvnw -B -ntp -Psecurity dependency:resolve-plugins
+          deploy/scripts/blank-nvd-key.sh
+          # An absent GitHub secret is the empty string. Leave it unset so it cannot be sent as a key.
           if [ -z "${NVD_API_KEY}" ]; then
             unset NVD_API_KEY
           fi

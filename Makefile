@@ -62,6 +62,8 @@ report: build ## Regenerate RESULTS.md from the archived runs in results/
 
 .PHONY: security
 security: ## SBOM + OWASP Dependency-Check (Maven), gitleaks and Trivy (Docker)
+	$(MVN) $(MVN_FLAGS) -Psecurity dependency:resolve-plugins
+	deploy/scripts/blank-nvd-key.sh
 	$(MVN) $(MVN_FLAGS) -Psecurity -DskipTests install
 	deploy/scripts/scan.sh
 

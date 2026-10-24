@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Local security scans that need no account: gitleaks on the Git history and Trivy on the pinned
 # images and the deployment configuration, both run from pinned containers. OWASP
-# Dependency-Check and the SBOM run through Maven (make security); Dependency-Check downloads the
-# NVD database on first use (set NVD_API_KEY to make it fast).
+# Dependency-Check and the SBOM run through Maven (make security). The first NVD download is slow
+# without NVD_API_KEY; blank-nvd-key.sh drops the empty key Dependency-Check 13 would otherwise send.
 source "$(dirname "$0")/lib.sh"
 
 GITLEAKS_IMAGE="${GITLEAKS_IMAGE:-zricethezav/gitleaks:v8.30.1}"
