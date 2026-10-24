@@ -115,9 +115,11 @@ flowchart LR
 
 ## Demo
 
-[`docs/demo.sh`](docs/demo.sh) is a scripted terminal session with a fixed seed. Record it with
-`asciinema rec docs/demo.cast -c docs/demo.sh` and turn it into a GIF with
-[agg](https://github.com/asciinema/agg).
+[`docs/demo.sh`](docs/demo.sh) is a scripted terminal session with a fixed seed. The recording is
+[`docs/demo.cast`](docs/demo.cast). Play it with `asciinema play docs/demo.cast`.
+
+Record it again with `asciinema record docs/demo.cast --overwrite -c docs/demo.sh`. A GIF can be
+rendered with [agg](https://github.com/asciinema/agg).
 
 ## Make targets
 

@@ -21,7 +21,7 @@ run() {
 say "A three-node RabbitMQ 4.4 cluster behind Toxiproxy, with generated credentials"
 run "make up 2>&1 | tail -n 2"
 
-say "The seed fixes the fault plan: kill a node, then cut the cluster in two"
+say "The seed fixes the fault plan. With seed 42 the only fault is a partition around rabbit2"
 run "java -jar $jar plan --seed 42 --duration 60 --nemesis kill-node,partition-halves | head -n 22"
 
 say "Run the workload under those faults on a quorum queue, then check the history"
