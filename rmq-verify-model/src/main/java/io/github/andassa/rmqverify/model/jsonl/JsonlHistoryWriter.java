@@ -5,12 +5,12 @@ import io.github.andassa.rmqverify.model.Operation;
 import io.github.andassa.rmqverify.model.OperationSink;
 import java.io.BufferedWriter;
 import java.io.Closeable;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,7 +47,9 @@ public final class JsonlHistoryWriter implements OperationSink, Closeable {
    * @throws IOException if the file cannot be created
    */
   public static JsonlHistoryWriter open(Path path, HistoryHeader header) throws IOException {
-    OutputStream stream = Files.newOutputStream(path);
+    // FileOutputStream, unlike Files.newOutputStream, is not closed when a writing thread is
+    // interrupted: stopping a client thread must never truncate the history.
+    OutputStream stream = new FileOutputStream(path.toFile());
     try {
       Path name = path.getFileName();
       if (name != null && name.toString().endsWith(".gz")) {
