@@ -1,0 +1,33 @@
+# Build output
+target/
+*.class
+dependency-reduced-pom.xml
+
+# IDE and editor-local configuration
+.cursor/
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+
+# Local environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+deploy/tls/generated/
+*.pem
+*.key
+*.p12
+*.jks
+
+# Local tooling state
+.tooling/
+
+# Run artefacts (only compressed archives under results/ are versioned)
+runs/
+results/**/*.jsonl
+results/**/report.html
+out/

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.andassa</groupId>
+    <artifactId>rmq-verify-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>rmq-verify-model</artifactId>
+  <name>rmq-verify :: model</name>
+  <description>Pure domain: operations, histories, anomalies and verdicts.</description>
+
+  <properties>
+    <jacoco.minLineCoverage>0.90</jacoco.minLineCoverage>
+    <jacoco.minBranchCoverage>0.85</jacoco.minBranchCoverage>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>
