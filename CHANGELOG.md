@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes are documented here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
+[Semantic Versioning](https://semver.org/).
+
+## [0.1.0] - 2026-10-24
+
+First public version.
+
+### Added
+
+- History model: operations, sealed values, invariant-checked histories, thread-safe recorder,
+  versioned JSONL format with a strict, size-bounded reader (ADR-0003).
+- Seven checkers: lost messages, duplicate deliveries, unexpected messages, FIFO ordering,
+  confirmed but missing after recovery, availability and recovery time, split-brain indicators.
+  Validated against a simulated correct broker with jqwik properties and PIT (ADR-0006).
+- Workload: seeded AMQP 0-9-1 and stream publishers with synchronous confirms and no retry,
+  manual-ack consumers, offset-tracking stream readers, drains with explicit end criteria
+  (ADR-0008, ADR-0009).
+- Nemeses: kill, pause, three partition shapes, latency, packet loss, client toxics, rolling
+  restart; seeded planner, replayable `plan.json`, guaranteed healing (ADR-0010, ADR-0011).
+- Hardened three-node cluster for RabbitMQ 3.13.7 and 4.4.0 with Toxiproxy, pinned by digest,
+  optional TLS mode (ADR-0007, ADR-0016).
+- Reports: Markdown, self-contained HTML, JSON, SVG charts, scenario × version matrix and
+  generated `RESULTS.md` (ADR-0013).
+- `minimize`: ddmin over fault plans and load reduction, with real runs as the oracle
+  (ADR-0015).
+- CI: quality gate, end-to-end tests on both versions, security scans (gitleaks,
+  Dependency-Check, Trivy, CycloneDX SBOM), nightly chaos, release workflow.
+
+### Fixed
+
+- Publisher and consumer threads no longer die when the AMQP client reports a connection that is
+  already closing (`ShutdownSignalException` on close), found by the first benchmark run.
+- Stream drain on RabbitMQ 3.13 falls back to the last chunk id when the broker does not report a
+  committed offset, so a non-empty stream is no longer recorded as empty.
+- A late unflagged original delivery and a reorder of an unconfirmed publish are notes. A
+  violation still requires two unflagged deliveries, a duplicated stream offset, or an inversion
+  of two confirmed publishes.
