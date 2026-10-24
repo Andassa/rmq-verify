@@ -1,0 +1,17 @@
+# TLS override, used by `make up TLS=1`: test certificates are mounted into every node, plain
+# AMQP and stream listeners are disabled and Toxiproxy forwards to the TLS listeners on the same
+# local ports. Clients then need --tls-ca deploy/tls/generated/ca.pem.
+x-tls-volumes: &tls-volumes
+  - ./tls/generated/certs:/etc/rabbitmq/tls:ro
+  - ./tls/generated/conf.d:/etc/rabbitmq/conf.d:ro
+
+services:
+  rabbit1:
+    volumes: *tls-volumes
+  rabbit2:
+    volumes: *tls-volumes
+  rabbit3:
+    volumes: *tls-volumes
+  toxiproxy:
+    volumes:
+      - ./toxiproxy/toxiproxy.tls.json:/config/toxiproxy.json:ro

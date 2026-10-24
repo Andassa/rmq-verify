@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEPLOY_DIR="$ROOT_DIR/deploy"
 ENV_FILE="$ROOT_DIR/.env"
 RABBITMQ_VERSION="${RABBITMQ:-4.4}"
+RMQV_JAR="${RMQV_JAR:-$ROOT_DIR/rmq-verify-cli/target/rmq-verify.jar}"
 
 log() { printf '[rmq-verify] %s\n' "$*" >&2; }
 die() { log "error: $*"; exit 1; }
@@ -24,7 +25,21 @@ resolve_images() {
 }
 
 compose() {
-  docker compose --project-directory "$DEPLOY_DIR" -f "$DEPLOY_DIR/docker-compose.yml" --env-file "$ENV_FILE" "$@"
+  local files=(-f "$DEPLOY_DIR/docker-compose.yml")
+  if [ "${TLS:-0}" = "1" ]; then
+    files+=(-f "$DEPLOY_DIR/docker-compose.tls.yml")
+  fi
+  docker compose --project-directory "$DEPLOY_DIR" "${files[@]}" --env-file "$ENV_FILE" "$@"
+}
+
+# TLS mode: test certificates plus a conf.d without plain listeners (see docker-compose.tls.yml).
+prepare_tls() {
+  "$DEPLOY_DIR/scripts/gen-test-certs.sh"
+  local conf="$DEPLOY_DIR/tls/generated/conf.d"
+  mkdir -p "$conf"
+  sed -e '/^listeners\.tcp/d' -e '/^stream\.listeners\.tcp/d' \
+    "$DEPLOY_DIR/rabbitmq/conf.d/10-rmq-verify.conf" > "$conf/10-rmq-verify.conf"
+  cp "$DEPLOY_DIR/rabbitmq/tls/20-tls.conf" "$conf/20-tls.conf"
 }
 
 # Runs rabbitmqctl on rabbit1 as the broker user.

@@ -10,7 +10,10 @@ set -a
 source "$ENV_FILE"
 set +a
 
-log "starting RabbitMQ $RMQV_RABBITMQ_TAG cluster"
+if [ "${TLS:-0}" = "1" ]; then
+  prepare_tls
+fi
+log "starting RabbitMQ $RMQV_RABBITMQ_TAG cluster (TLS=${TLS:-0})"
 compose up -d --build --wait --wait-timeout 300
 
 log "waiting for the three nodes to join"
@@ -34,3 +37,6 @@ rabbitmqctl set_permissions -p "$RMQV_VHOST" "$RMQV_APP_USER" '^rmqv\..*' '^(rmq
 rabbitmqctl set_permissions -p "$RMQV_VHOST" "$RMQV_ADMIN_USER" '.*' '.*' '.*' >/dev/null
 
 log "cluster ready: RabbitMQ $(rabbitmqctl version 2>/dev/null | tail -n1), management on http://127.0.0.1:15672"
+if [ "${TLS:-0}" = "1" ]; then
+  log "TLS only: pass --tls-ca $DEPLOY_DIR/tls/generated/certs/ca.pem to rmq-verify"
+fi

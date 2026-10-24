@@ -37,7 +37,7 @@ flowchart LR
 | `rmq-verify-cluster` | Cluster control: Docker CLI, iptables, `tc netem`, Toxiproxy, management API | `model` |
 | `rmq-verify-nemesis` | Fault SPI, seeded planner, replayable plans, guaranteed healing | `model`, `cluster` |
 | `rmq-verify-report` | Rendering of runs and matrices | `model` |
-| `rmq-verify-cli` | Wiring and commands (`run`, `check`, `report`, `replay`, `minimize`, `plan`) | everything |
+| `rmq-verify-cli` | Wiring and commands (`run`/`replay`, `plan`, `check`, `report`, `minimize`) | everything |
 | `rmq-verify-jmh` | Throughput benchmarks of the checkers | `model`, `checker` |
 | `rmq-verify-e2e` | Real-cluster scenarios with Testcontainers | everything |
 
@@ -73,5 +73,15 @@ sequenceDiagram
 - No fault is injected before the safety guard has confirmed that every target container carries
   the `io.github.andassa.rmq-verify.cluster` label and sits on the dedicated Docker network.
 
-See [METHODOLOGY.md](METHODOLOGY.md) for the formal definitions and [adr/](adr/) for the
-decisions behind this layout.
+## Deployment
+
+`deploy/docker-compose.yml` starts `rabbit1..3` (pinned official image plus `iptables` and
+`iproute2`, non-root, read-only, only `NET_ADMIN`) and Toxiproxy, on the dedicated network
+`rmqv-net`. Clients reach every node through Toxiproxy on `127.0.0.1:25671-25673` (AMQP) and
+`127.0.0.1:25551-25553` (streams); management APIs listen on `127.0.0.1:15672-15674`.
+`docker-compose.tls.yml` switches clients to TLS. Scripts under `deploy/scripts/` implement
+`make up`, `down`, `demo`, `chaos`, `bench` and `security`.
+
+See [METHODOLOGY.md](METHODOLOGY.md) for the formal definitions, [THREAT_MODEL.md](THREAT_MODEL.md)
+for the security analysis, [extending.md](extending.md) to add checkers and nemeses, and
+[adr/](adr/) for the decisions behind this layout.
