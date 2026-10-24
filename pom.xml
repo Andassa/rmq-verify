@@ -36,6 +36,8 @@
     <netty.version>4.2.19.Final</netty.version>
     <picocli.version>4.7.7</picocli.version>
     <jackson.version>2.22.4</jackson.version>
+    <!-- Jackson 3, brought by the Logstash encoder. 3.0.1 is affected by CVE-2026-29062 and CVE-2026-54512. -->
+    <jackson3.version>3.2.4</jackson3.version>
     <slf4j.version>2.0.20</slf4j.version>
     <logback.version>1.6.5</logback.version>
     <logstash-encoder.version>9.0</logstash-encoder.version>
@@ -123,6 +125,13 @@
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson3.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

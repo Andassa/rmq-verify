@@ -47,6 +47,10 @@ First public version.
   downloaded jar. A `NVD_API_KEY` secret stays optional and only makes the update faster.
 - A 429 from the NVD was retried 30 times with a 0 ms delay, so the update gave up in one second.
   The security profile now waits 6 s between those attempts.
+- Jackson 3, pulled in by the Logstash encoder, moves from 3.0.1 to 3.2.4. 3.0.1 is affected by
+  CVE-2026-29062, CVE-2026-54512 and CVE-2026-54513.
+- Dependency-Check no longer treats `rmq-verify-cli` as the GitHub CLI. CVE-2024-52308 and
+  CVE-2026-48501 apply to the `gh` binary.
 
 ### Changed
 

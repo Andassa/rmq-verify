@@ -16,7 +16,9 @@ power. Reproducible builds and results also require stable versions.
 - Runtime dependencies are limited to: the official RabbitMQ clients (`amqp-client`,
   `stream-client`, plus `netty-handler` aligned with the stream client for TLS contexts),
   `jackson-core` (model) and `jackson-databind` (plans, reports, management API), `picocli`,
-  `slf4j` with `logback` and the Logstash encoder (JSON logs). Docker is driven through its CLI
+  `slf4j` with `logback` and the Logstash encoder (JSON logs). The encoder pulls Jackson 3; that
+  line is pinned to 3.2.4 because 3.0.1 is affected by CVE-2026-29062 and CVE-2026-54512.
+  Docker is driven through its CLI
   and HTTP through `java.net.http` instead of adding clients (ADR-0012).
 - Test-only: JUnit, AssertJ, jqwik, Mockito (only for the broker client interfaces), ArchUnit,
   JMH. End-to-end tests start `deploy/docker-compose.yml` with the Docker CLI. Testcontainers
