@@ -21,7 +21,7 @@ test: ## Run the unit and property-based tests
 
 .PHONY: verify
 verify: ## Full quality gate: format, lint, tests, coverage, ArchUnit, SpotBugs, mutation
-	$(MVN) $(MVN_FLAGS) -Pmutation verify
+	$(MVN) $(MVN_FLAGS) -Pmutation clean verify
 
 .PHONY: mutation
 mutation: ## PIT mutation testing on the model and checker modules
