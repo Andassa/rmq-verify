@@ -45,6 +45,8 @@ First public version.
 - Dependency-Check 13.0.0 ships `nvd.api.key=` and sends that empty value to the NVD, which
   rejects it before any analysis. The security job removes that empty default from the
   downloaded jar. A `NVD_API_KEY` secret stays optional and only makes the update faster.
+- A 429 from the NVD was retried 30 times with a 0 ms delay, so the update gave up in one second.
+  The security profile now waits 6 s between those attempts.
 
 ### Changed
 

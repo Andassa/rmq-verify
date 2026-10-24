@@ -22,7 +22,8 @@ power. Reproducible builds and results also require stable versions.
   JMH. End-to-end tests start `deploy/docker-compose.yml` with the Docker CLI. Testcontainers
   2.0.5 rejects `container_name`, which the safety guard and the scripts require.
 - Updates arrive through Dependabot (Maven, Actions, Dockerfile) and must pass `make verify`.
-  OWASP Dependency-Check fails the security workflow at CVSS 7; Trivy reports image findings;
+  OWASP Dependency-Check fails the security workflow at CVSS 7. Its NVD client retries HTTP 429
+  with a default delay of 0 ms, so the security profile sets a 6 s delay. Trivy reports image findings;
   each release ships a CycloneDX SBOM.
 - google-java-format is pinned to 1.36.1: 1.37 needs `commonmark` on the formatter class path,
   which Spotless 3.10 does not provide.

@@ -567,6 +567,8 @@
                 <format>HTML</format>
                 <format>SARIF</format>
               </formats>
+              <!-- The client retries HTTP 429 with this delay. The default is 0 ms, so 30 attempts finish in one second. -->
+              <nvdApiDelay>6000</nvdApiDelay>
               <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
               <suppressionFiles>
                 <suppressionFile>${rootdir}/config/dependency-check/suppressions.xml</suppressionFile>
