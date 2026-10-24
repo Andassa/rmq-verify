@@ -69,17 +69,28 @@ delivered*; neither is a violation.
 
 ### 4.2 Duplicate delivery (`DuplicateDeliveries`)
 
-Let `δ(m)` be the deliveries of `m` ordered by time, restricted to `D(m) ∪ Dᵈ(m)` for destructive
-queues. For each `dᵢ`, `i ≥ 2`:
+Let `δ(m)` be the deliveries of `m`, regular and drain, for a destructive queue. Every delivery
+except the original attempt must carry the `redelivered` flag, but attempts to different
+consumers can arrive out of order: during a partition, a quorum queue leader may return the
+messages of an unreachable consumer and redeliver them (flagged) to another one, while the
+original deliveries, delayed by the partition, arrive afterwards unflagged. The invariant is:
 
-- *legitimate redelivery* if `dᵢ.redelivered` (the broker did not get, or lost, the ack);
-- *unexpected duplicate* otherwise: the broker handed out the same message twice as if it were
-  new, which means the queue stored it twice or forgot a delivery.
+- at most one delivery of `m` is unflagged: repeats are *legitimate redeliveries* (a *late
+  original* when the unflagged delivery is not the first one observed);
+- two or more unflagged deliveries are an *unexpected duplicate*: the broker handed out the same
+  message twice as if it were new.
 
-For log queues the drain re-reads everything, so `D(m)` and `Dᵈ(m)` are judged separately: two
-occurrences of `m` within `Dᵈ(m)` mean the log contains `m` twice (unexpected duplicate);
-repeated deliveries of `m` to the same regular consumer are offset replays after consumer
-recovery (legitimate, at-least-once).
+This refinement comes from the first benchmark (RabbitMQ 3.13.7, quorum queue, bridge partition:
+31 messages redelivered flagged to one consumer, then received unflagged by the original one 57 ms
+later). Both observations are legitimate at-least-once delivery.
+
+For log queues every reader sees every entry, and the drain re-reads the whole log, so deliveries
+are judged by offset (the delivery tag of a stream delivery):
+
+- `m` read at two distinct offsets means the log contains `m` twice: *duplicate in log*
+  (violation);
+- the same offset read twice by the same reader is a replay after consumer recovery (note);
+- the same offset read by different readers (consumers, drain) is expected and not reported.
 
 ### 4.3 Unexpected message (`UnexpectedMessages`)
 
@@ -93,10 +104,15 @@ the message is guaranteed absent.
 ### 4.4 FIFO violation (`FifoOrdering`)
 
 Let `F(c, P, q)` be the deliveries to consumer process `c` of messages of publisher `P` in queue
-`q`, in delivery order, excluding deliveries flagged `redelivered` and deliveries of a UUID that
-`c` already received. Then:
+`q`, in delivery order, excluding deliveries flagged `redelivered` and deliveries of a message
+already delivered before (to anyone for destructive queues, to `c` for streams, whose readers all
+see every entry). Then:
 
-- **inversion**: `dᵢ, dⱼ ∈ F(c, P, q), i < j, seq(dᵢ) > seq(dⱼ)`;
+- **inversion**: `dᵢ, dⱼ ∈ F(c, P, q), i < j, seq(dᵢ) > seq(dⱼ)`, both messages confirmed. If
+  either was not confirmed, the reordering is a note: a publish that timed out may be enqueued
+  late, through the failing connection, after messages published later on a new connection, and
+  RabbitMQ only orders messages within one channel (observed in the first benchmark: an `INFO`
+  publish enqueued after 23 later messages of its publisher);
 - **gap**: a confirmed `m` of `(P, q)` is never delivered while some `m'` of `(P, q)` with
   `seq(m') > seq(m)` is delivered. A gap is the ordering signature of a loss in the middle of a
   queue: the successors survived, the message did not. Gaps overlap with 4.1 on purpose, they

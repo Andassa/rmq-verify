@@ -36,6 +36,7 @@ public final class FifoOrderingChecker implements Checker {
     long gapsSkipped = findGaps(ledger, findings);
     findings.metric("orderedDeliveries", judged);
     findings.metric("inversions", findings.count("FIFO_INVERSION"));
+    findings.metric("reorderedUnconfirmed", findings.count("REORDERED_UNCONFIRMED"));
     findings.metric("gaps", findings.count("FIFO_GAP"));
     findings.metric("gapChecksSkippedUndrained", gapsSkipped);
     return findings.verdict(
@@ -48,20 +49,25 @@ public final class FifoOrderingChecker implements Checker {
             + " first-time deliveries");
   }
 
+  /**
+   * A first-time delivery is one that is not flagged and whose message was not delivered before: to
+   * anyone for destructive queues (where a late, unflagged original delivery can follow a flagged
+   * redelivery to another consumer), to the same reader for streams (where every reader sees every
+   * entry).
+   */
   private static long findInversions(MessageLedger ledger, Findings findings) {
     Map<String, Operation> lastByStream = new HashMap<>();
-    Map<String, Set<String>> seenByProcess = new HashMap<>();
+    Map<String, Set<String>> seenByReader = new HashMap<>();
     long judged = 0;
     for (Operation op : ledger.deliveries()) {
       if (!(op.value() instanceof Value.Delivery delivery) || delivery.redelivered()) {
         continue;
       }
       MessageRecord record = ledger.record(delivery.msg().uuid()).orElse(null);
-      boolean firstForProcess =
-          seenByProcess
-              .computeIfAbsent(op.process(), p -> new HashSet<>())
-              .add(delivery.msg().uuid());
-      if (record == null || !firstForProcess) {
+      String reader = ledger.isLog(delivery.msg().queue()) ? op.process() : "";
+      boolean firstTime =
+          seenByReader.computeIfAbsent(reader, p -> new HashSet<>()).add(delivery.msg().uuid());
+      if (record == null || !firstTime) {
         continue;
       }
       judged++;
@@ -69,25 +75,46 @@ public final class FifoOrderingChecker implements Checker {
       String stream = op.process() + '\u0000' + msg.publisherId() + '\u0000' + msg.queue();
       Operation previous = lastByStream.put(stream, op);
       if (previous != null) {
-        Message before =
-            ledger.record(((Value.Delivery) previous.value()).msg().uuid()).orElseThrow().message();
-        if (before.sequence() > msg.sequence()) {
-          findings.violation(
-              "FIFO_INVERSION",
-              op.process()
-                  + " received "
-                  + msg.publisherId()
-                  + "#"
-                  + msg.sequence()
-                  + " after #"
-                  + before.sequence()
-                  + " in "
-                  + msg.queue(),
-              List.of(previous, op));
+        MessageRecord before =
+            ledger.record(((Value.Delivery) previous.value()).msg().uuid()).orElseThrow();
+        if (before.message().sequence() > msg.sequence()) {
+          reportInversion(findings, op, record, previous, before);
         }
       }
     }
     return judged;
+  }
+
+  /**
+   * Both messages confirmed: the first was enqueued before the second was even published, so the
+   * inversion breaks FIFO. If either was not confirmed, it may have been enqueued late through a
+   * connection that was failing, and RabbitMQ only orders messages within one channel.
+   */
+  private static void reportInversion(
+      Findings findings,
+      Operation op,
+      MessageRecord current,
+      Operation previous,
+      MessageRecord before) {
+    Message msg = current.message();
+    String description =
+        op.process()
+            + " received "
+            + msg.publisherId()
+            + "#"
+            + msg.sequence()
+            + " after #"
+            + before.message().sequence()
+            + " in "
+            + msg.queue();
+    if (current.outcome() == OpType.OK && before.outcome() == OpType.OK) {
+      findings.violation("FIFO_INVERSION", description, List.of(previous, op));
+    } else {
+      findings.note(
+          "REORDERED_UNCONFIRMED",
+          description + ", at least one of them unconfirmed",
+          List.of(previous, op));
+    }
   }
 
   /** Returns the number of confirmed messages whose gap check was skipped (queue not drained). */

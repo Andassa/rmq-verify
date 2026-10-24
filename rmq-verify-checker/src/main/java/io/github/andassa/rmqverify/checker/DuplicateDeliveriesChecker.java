@@ -43,7 +43,10 @@ public final class DuplicateDeliveriesChecker implements Checker {
     findings.metric("deliveries", ledger.deliveries().size());
     findings.metric("duplicatedMessages", duplicated);
     findings.metric(
-        "legitimateRedeliveries", findings.count("REDELIVERY") + findings.count("OFFSET_REPLAY"));
+        "legitimateRedeliveries",
+        findings.count("REDELIVERY")
+            + findings.count("LATE_ORIGINAL_DELIVERY")
+            + findings.count("OFFSET_REPLAY"));
     findings.metric(
         "unexpectedDuplicates",
         findings.count("DUPLICATE_UNEXPECTED") + findings.count("DUPLICATE_IN_LOG"));
@@ -52,23 +55,33 @@ public final class DuplicateDeliveriesChecker implements Checker {
         duplicated + " message(s) delivered more than once out of " + ledger.messages().size());
   }
 
+  /**
+   * Every delivery but the original attempt must carry the {@code redelivered} flag. Attempts to
+   * different consumers can arrive out of order (an original delivery delayed by a partition after
+   * its flagged redelivery), so the invariant is: at most one unflagged delivery per message.
+   */
   private static boolean judgeDestructive(
       MessageRecord record, List<Operation> deliveries, Findings findings) {
     List<Operation> unflagged = new ArrayList<>();
-    for (Operation repeat : deliveries.subList(1, deliveries.size())) {
-      if (!((Value.Delivery) repeat.value()).redelivered()) {
-        unflagged.add(repeat);
+    for (Operation delivery : deliveries) {
+      if (!((Value.Delivery) delivery.value()).redelivered()) {
+        unflagged.add(delivery);
       }
     }
     String what =
         LostMessagesChecker.describe(record) + " delivered " + deliveries.size() + " times";
-    if (unflagged.isEmpty()) {
-      findings.note("REDELIVERY", what + ", every repeat flagged redelivered", deliveries);
-    } else {
+    if (unflagged.size() > 1) {
       findings.violation(
           "DUPLICATE_UNEXPECTED",
-          what + ", " + unflagged.size() + " repeat(s) without the redelivered flag",
+          what + ", " + unflagged.size() + " of them without the redelivered flag",
           deliveries);
+    } else if (!unflagged.isEmpty() && !unflagged.get(0).equals(deliveries.get(0))) {
+      findings.note(
+          "LATE_ORIGINAL_DELIVERY",
+          what + ", the unflagged original arrived after a flagged redelivery",
+          deliveries);
+    } else {
+      findings.note("REDELIVERY", what + ", every repeat flagged redelivered", deliveries);
     }
     return true;
   }

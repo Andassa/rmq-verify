@@ -256,9 +256,15 @@ class CheckerProperties {
 
   /**
    * Pairs of first-time, unflagged deliveries to one consumer of one publisher, with nothing in
-   * between.
+   * between, both of confirmed messages (an unconfirmed message may legitimately arrive late).
    */
   private static List<int[]> orderedPairs(List<Ev> events) {
+    Set<String> confirmed = new HashSet<>();
+    for (Ev ev : events) {
+      if (ev instanceof Ev.Pub p && p.outcome() == OpType.OK) {
+        confirmed.add(p.m().uuid());
+      }
+    }
     Map<String, Integer> last = new HashMap<>();
     Set<String> seen = new HashSet<>();
     List<int[]> pairs = new ArrayList<>();
@@ -267,6 +273,10 @@ class CheckerProperties {
           && !d.redelivered()
           && seen.add(d.consumer() + d.m().uuid())) {
         String stream = d.consumer() + "/" + d.m().publisherId();
+        if (!confirmed.contains(d.m().uuid())) {
+          last.remove(stream);
+          continue;
+        }
         Integer previous = last.put(stream, i);
         if (previous != null) {
           pairs.add(new int[] {previous, i});

@@ -210,7 +210,56 @@ class CheckerEdgeCasesTest {
     assertThat(bad.anomalies()).extracting(Anomaly::kind).containsExactly("DUPLICATE_UNEXPECTED");
     assertThat(bad.metrics()).containsEntry("unexpectedDuplicates", 1.0);
     assertThat(bad.anomalies().get(0).description())
-        .contains("1 repeat(s) without the redelivered flag");
+        .contains("2 of them without the redelivered flag");
+  }
+
+  @Test
+  void aLateUnflaggedOriginalAfterAFlaggedRedeliveryIsLegitimate() {
+    HistoryFixture f = HistoryFixture.quorum("q");
+    Message m = msg("p", "q", 0);
+    f.published(m, OpType.OK);
+    f.deliver("c1", m, true, 7);
+    f.deliver("c2", m, false, 3);
+    Verdict verdict = new DuplicateDeliveriesChecker().check(f.build(), CTX);
+    assertThat(verdict.status()).isEqualTo(VerdictStatus.VALID);
+    assertThat(verdict.anomalies())
+        .extracting(Anomaly::kind)
+        .containsExactly("LATE_ORIGINAL_DELIVERY");
+    assertThat(verdict.metrics()).containsEntry("legitimateRedeliveries", 1.0);
+  }
+
+  @Test
+  void reorderingAnUnconfirmedMessageIsANote() {
+    HistoryFixture f = HistoryFixture.quorum("q");
+    Message late = msg("p", "q", 0);
+    Message next = msg("p", "q", 1);
+    f.published(late, OpType.INFO);
+    f.published(next, OpType.OK);
+    f.consumed("c", next, false, 1);
+    f.consumed("c", late, false, 2);
+    Verdict verdict = new FifoOrderingChecker().check(f.build(), CTX);
+    assertThat(verdict.status()).isEqualTo(VerdictStatus.VALID);
+    assertThat(verdict.anomalies())
+        .extracting(Anomaly::kind)
+        .containsExactly("REORDERED_UNCONFIRMED");
+    assertThat(verdict.metrics())
+        .containsEntry("reorderedUnconfirmed", 1.0)
+        .containsEntry("inversions", 0.0);
+  }
+
+  @Test
+  void aMessageAlreadyDeliveredElsewhereIsNotJudgedForOrder() {
+    HistoryFixture f = HistoryFixture.quorum("q");
+    Message first = msg("p", "q", 0);
+    Message second = msg("p", "q", 1);
+    f.published(first, OpType.OK);
+    f.published(second, OpType.OK);
+    f.deliver("c1", first, false, 1);
+    f.deliver("c2", second, false, 1);
+    f.deliver("c2", first, false, 2);
+    Verdict verdict = new FifoOrderingChecker().check(f.build(), CTX);
+    assertThat(verdict.anomalies()).isEmpty();
+    assertThat(verdict.metrics()).containsEntry("orderedDeliveries", 2.0);
   }
 
   @Test
