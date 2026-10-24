@@ -238,22 +238,23 @@ class ReportRenderingTest {
     String md = page.markdown(matrix);
     assertThat(md)
         .contains(
-            "# Results",
+            "# Résultats",
             "commit `abc1234`",
             "Image rabbitmq: `rabbitmq:4.4.0@sha256:x`",
-            "| `quorum-kill` | **1/2** invalid · lost 27",
-            "## Counterexamples",
-            "run `r-<1>`, LostMessages: 27 violation(s)",
-            "How to read these results");
-    assertThat(page.markdown(Matrix.of(List.of(valid)))).contains("No violation was observed");
+            "| `quorum-kill` | **1/2** invalides · perdus 27",
+            "## Contre-exemples",
+            "exécution `r-<1>`, LostMessages : 27 violation(s)",
+            "Comment lire ces résultats");
+    assertThat(page.markdown(Matrix.of(List.of(valid))))
+        .contains("Aucune violation dans ces exécutions");
     String readme =
         "# Title\n" + ResultsPage.START + "\nold numbers\n" + ResultsPage.END + "\nrest\n";
     String updated = page.updateBlock(readme, matrix);
     assertThat(updated)
         .startsWith("# Title\n" + ResultsPage.START)
         .endsWith(ResultsPage.END + "\nrest\n")
-        .contains("| `quorum-kill` | **1/2** invalid", "commit `abc1234`")
-        .doesNotContain("old numbers", "## Matrix");
+        .contains("| `quorum-kill` | **1/2** invalides", "commit `abc1234`")
+        .doesNotContain("old numbers", "## Matrice");
     org.assertj.core.api.Assertions.assertThatThrownBy(() -> page.updateBlock("no markers", matrix))
         .hasMessageContaining("markers");
   }

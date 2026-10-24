@@ -42,3 +42,10 @@ First public version.
   `container_name`, which the safety guard requires, so the suite never reached the scenarios.
 - The gitleaks CI job scans the whole Git history. The previous action asked for the parent of
   the root commit on the first push and exited before scanning anything.
+- Dependency-Check no longer receives an empty `NVD_API_KEY` when the GitHub secret is unset.
+  The client rejected that empty key and the job stopped before analysing anything.
+
+### Changed
+
+- The README and the generated results page are in French. The numbers still come from the
+  archived runs.
