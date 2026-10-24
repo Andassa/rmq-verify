@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Structured JSON logs on stderr; stdout is reserved for the command output. -->
+<configuration>
+  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <includeContext>false</includeContext>
+    </encoder>
+  </appender>
+
+  <logger name="io.github.andassa.rmqverify" level="${RMQV_LOG_LEVEL:-WARN}"/>
+  <logger name="com.rabbitmq" level="ERROR"/>
+  <logger name="io.netty" level="ERROR"/>
+
+  <root level="WARN">
+    <appender-ref ref="JSON"/>
+  </root>
+</configuration>

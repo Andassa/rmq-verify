@@ -115,9 +115,11 @@ losses that faults caused from losses that happen in steady state.
 
 ### 4.6 Availability (`Availability`)
 
-Time is cut into windows of fixed width (1 s by default). For each window, the success rate is
-the number of `CONFIRM OK` divided by the number of publishes invoked in that window. An
-*unavailability* is a maximal run of windows with invocations and no success. The **recovery
+Time is cut into windows of fixed width (1 s by default) between the first and the last
+publication. The success rate is the number of `CONFIRM OK` divided by the number of publishes.
+A window is *unavailable* when no publish was confirmed in it; an *unavailability* is a maximal
+run of such windows. Publishers are synchronous, so a blocked publisher stops invoking: measuring
+invocations instead of confirmations would hide the outages. The **recovery
 time** of a fault is `t(first CONFIRM OK of a publish invoked after e) − e`. The verdict is
 `INVALID` if a fault never recovers or if a recovery exceeds the configured bound (60 s by
 default); availability is not a RabbitMQ guarantee, the bound is the operator's expectation.

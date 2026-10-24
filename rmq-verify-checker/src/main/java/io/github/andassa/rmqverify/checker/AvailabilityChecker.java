@@ -46,38 +46,36 @@ public final class AvailabilityChecker implements Checker {
             findings.metricValue("maxUnavailabilityMs")));
   }
 
+  /**
+   * A window is unavailable when no publish was confirmed in it. Publishers are synchronous, so a
+   * blocked publisher stops invoking: counting invocations would hide exactly the outages we
+   * measure.
+   */
   private static void measureUnavailability(
       List<MessageRecord> publications, Duration window, Findings findings) {
     long width = window.toNanos();
     long origin = publications.get(0).publish().timestampNanos();
-    int buckets =
-        (int)
-                ((publications.get(publications.size() - 1).publish().timestampNanos() - origin)
-                    / width)
-            + 1;
-    long[] invoked = new long[buckets];
-    long[] succeeded = new long[buckets];
+    long last = publications.get(publications.size() - 1).publish().timestampNanos();
+    int buckets = (int) ((last - origin) / width) + 1;
+    boolean[] confirmed = new boolean[buckets];
     for (MessageRecord record : publications) {
-      int bucket = (int) ((record.publish().timestampNanos() - origin) / width);
-      invoked[bucket]++;
-      succeeded[bucket] += record.outcome() == OpType.OK ? 1 : 0;
+      if (record.outcome() == OpType.OK) {
+        long at = record.confirm().orElseThrow().timestampNanos();
+        confirmed[(int) Math.min(buckets - 1, (at - origin) / width)] = true;
+      }
     }
     long longest = 0;
     long total = 0;
     long current = 0;
-    for (int i = 0; i < buckets; i++) {
-      if (invoked[i] > 0 && succeeded[i] == 0) {
-        current++;
-        total++;
-        longest = Math.max(longest, current);
-      } else if (invoked[i] > 0) {
-        current = 0;
-      }
+    for (boolean ok : confirmed) {
+      current = ok ? 0 : current + 1;
+      total += ok ? 0 : 1;
+      longest = Math.max(longest, current);
     }
     findings.metric("windows", buckets);
     findings.metric("unavailableWindows", total);
-    findings.metric("maxUnavailabilityMs", longest * width / NANOS_PER_MILLI);
-    findings.metric("totalUnavailabilityMs", total * width / NANOS_PER_MILLI);
+    findings.metric("maxUnavailabilityMs", (double) longest * width / NANOS_PER_MILLI);
+    findings.metric("totalUnavailabilityMs", (double) total * width / NANOS_PER_MILLI);
   }
 
   private static void measureRecoveries(
