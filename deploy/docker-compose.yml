@@ -1,0 +1,109 @@
+# Three-node RabbitMQ cluster and a Toxiproxy in front of it, for fault-injection tests only.
+# Start with `make up` (which generates .env with random credentials); never expose it publicly.
+name: rmqv
+
+x-node: &node
+  build:
+    context: ./rabbitmq
+    args:
+      BASE_IMAGE: ${RMQV_RABBITMQ_BASE_IMAGE:?run make up}
+  image: rmq-verify/rabbitmq-node:${RMQV_RABBITMQ_TAG:?run make up}
+  user: rabbitmq
+  read_only: true
+  # The broker runs unprivileged; NET_ADMIN only serves iptables/tc executed by the nemesis.
+  cap_drop: [ALL]
+  cap_add: [NET_ADMIN]
+  security_opt: ["no-new-privileges:true"]
+  mem_limit: 1g
+  pids_limit: 2048
+  tmpfs:
+    - /tmp:size=64m
+  environment:
+    RABBITMQ_DEFAULT_USER: ${RMQV_ADMIN_USER:?run make up}
+    RABBITMQ_DEFAULT_PASS: ${RMQV_ADMIN_PASSWORD:?run make up}
+    RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -setcookie ${RMQV_ERLANG_COOKIE:?run make up}
+    RABBITMQ_CTL_ERL_ARGS: -setcookie ${RMQV_ERLANG_COOKIE:?run make up}
+  networks: [rmqv]
+  healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+    interval: 5s
+    timeout: 20s
+    retries: 40
+    start_period: 20s
+  labels: &node-labels
+    io.github.andassa.rmq-verify.cluster: rmqv
+    io.github.andassa.rmq-verify.role: node
+
+services:
+  rabbit1:
+    <<: *node
+    hostname: rabbit1
+    container_name: rmqv-rabbit1
+    volumes:
+      - ./rabbitmq/conf.d:/etc/rabbitmq/conf.d:ro
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbit1-data:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:15672:15672"
+
+  rabbit2:
+    <<: *node
+    hostname: rabbit2
+    container_name: rmqv-rabbit2
+    depends_on:
+      rabbit1:
+        condition: service_healthy
+    volumes:
+      - ./rabbitmq/conf.d:/etc/rabbitmq/conf.d:ro
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbit2-data:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:15673:15672"
+
+  rabbit3:
+    <<: *node
+    hostname: rabbit3
+    container_name: rmqv-rabbit3
+    depends_on:
+      rabbit1:
+        condition: service_healthy
+    volumes:
+      - ./rabbitmq/conf.d:/etc/rabbitmq/conf.d:ro
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbit3-data:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:15674:15672"
+
+  toxiproxy:
+    image: ${RMQV_TOXIPROXY_IMAGE:?run make up}
+    container_name: rmqv-toxiproxy
+    command: ["-host=0.0.0.0", "-config=/config/toxiproxy.json"]
+    user: "65534:65534"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    volumes:
+      - ./toxiproxy/toxiproxy.json:/config/toxiproxy.json:ro
+    networks: [rmqv]
+    ports:
+      - "127.0.0.1:8474:8474"
+      - "127.0.0.1:25671-25673:25671-25673"
+      - "127.0.0.1:25551-25553:25551-25553"
+    labels:
+      io.github.andassa.rmq-verify.cluster: rmqv
+      io.github.andassa.rmq-verify.role: proxy
+
+networks:
+  rmqv:
+    name: rmqv-net
+    labels:
+      io.github.andassa.rmq-verify.cluster: rmqv
+
+volumes:
+  rabbit1-data:
+  rabbit2-data:
+  rabbit3-data:

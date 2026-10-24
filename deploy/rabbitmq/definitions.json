@@ -1,0 +1,15 @@
+{
+  "vhosts": [
+    {
+      "name": "rmqv",
+      "description": "rmq-verify test traffic",
+      "tags": ["rmq-verify"]
+    }
+  ],
+  "users": [],
+  "permissions": [],
+  "queues": [],
+  "exchanges": [],
+  "bindings": [],
+  "policies": []
+}

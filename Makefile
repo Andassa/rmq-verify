@@ -27,6 +27,17 @@ verify: ## Full quality gate: format, lint, tests, coverage, ArchUnit, SpotBugs,
 mutation: ## PIT mutation testing on the model and checker modules
 	$(MVN) $(MVN_FLAGS) -Pmutation -pl rmq-verify-model,rmq-verify-checker -am verify
 
+RABBITMQ ?= 4.4
+export RABBITMQ
+
+.PHONY: up
+up: ## Start the 3-node cluster + Toxiproxy (RABBITMQ=3.13|4.4, default 4.4)
+	deploy/scripts/up.sh
+
+.PHONY: down
+down: ## Stop the cluster and delete its containers, network and volumes
+	deploy/scripts/down.sh
+
 .PHONY: fmt
 fmt: ## Format Java sources and POMs in place
 	$(MVN) $(MVN_FLAGS) -pl '!rmq-verify-bom' com.diffplug.spotless:spotless-maven-plugin:apply
