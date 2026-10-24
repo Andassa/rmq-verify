@@ -12,4 +12,37 @@
     <Package name="io.github.andassa.rmqverify.cli"/>
     <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR,NP_UNWRITTEN_FIELD"/>
   </Match>
+  <!--
+    Adapters receive their collaborators (clients, controllers, recorders) through the constructor.
+    Keeping a reference to an injected service is dependency injection, not exposure of mutable
+    value state; value types in the model are immutable records and are not matched here.
+  -->
+  <Match>
+    <Or>
+      <Package name="io.github.andassa.rmqverify.cluster"/>
+      <Package name="io.github.andassa.rmqverify.workload"/>
+      <Package name="~io\.github\.andassa\.rmqverify\.workload\..*"/>
+      <Package name="io.github.andassa.rmqverify.nemesis"/>
+      <Package name="io.github.andassa.rmqverify.report"/>
+      <Package name="io.github.andassa.rmqverify.cli"/>
+    </Or>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+  <!--
+    The single place that starts processes. Commands are argument lists (no shell), every container
+    name is validated against NodeSpec.SAFE_NAME and every other argument is built from constants or
+    validated values. See docs/THREAT_MODEL.md, threat T3.
+  -->
+  <Match>
+    <Class name="io.github.andassa.rmqverify.cluster.SystemProcessRunner"/>
+    <Bug pattern="COMMAND_INJECTION"/>
+  </Match>
+  <!--
+    Every log line is emitted as JSON by the Logstash encoder (logback.xml of the CLI), which escapes
+    CR and LF, so external text cannot forge log entries. Messages of external origin also go
+    through cluster.Logs.safe, which bounds their length.
+  -->
+  <Match>
+    <Bug pattern="CRLF_INJECTION_LOGS"/>
+  </Match>
 </FindBugsFilter>
