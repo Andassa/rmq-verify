@@ -45,4 +45,13 @@
   <Match>
     <Bug pattern="CRLF_INJECTION_LOGS"/>
   </Match>
+  <!--
+    RunReport and ResultsPage assemble HTML and SVG from strings. Every value that comes from data
+    goes through Html.escape (or RunReport.text for Markdown); the SVG fragments come from Svg, which
+    escapes all its text. Covered by ReportRenderingTest.htmlIsSelfContainedAndEscaped.
+  -->
+  <Match>
+    <Package name="io.github.andassa.rmqverify.report"/>
+    <Bug pattern="POTENTIAL_XML_INJECTION"/>
+  </Match>
 </FindBugsFilter>

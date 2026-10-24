@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
     mixinStandardHelpOptions = true,
     versionProvider = Main.Version.class,
     description = "Jepsen-style verification of RabbitMQ delivery guarantees under faults.",
-    subcommands = {RunCommand.class, PlanCommand.class, CheckCommand.class})
+    subcommands = {RunCommand.class, PlanCommand.class, CheckCommand.class, ReportCommand.class})
 public final class Main {
 
   private Main() {}
