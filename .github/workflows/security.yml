@@ -19,9 +19,30 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # gitleaks-action scans firstPushedCommit^..HEAD. That parent does not exist when the
+      # push contains the root commit, so the scan exits before reading a single file. The full
+      # history is what deploy/scripts/scan.sh checks locally. Version and checksum match that script.
+      - name: Install gitleaks 8.30.1
+        run: |
+          set -euo pipefail
+          version=8.30.1
+          archive="gitleaks_${version}_linux_x64.tar.gz"
+          curl -fsSL -o "$archive" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${version}/${archive}"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  ${archive}" \
+            | sha256sum -c
+          tar -xzf "$archive" gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+      - name: Scan the Git history
+        run: gitleaks detect --source . --redact --no-banner --exit-code 2 --report-format sarif --report-path gitleaks.sarif
+      - name: Upload the gitleaks report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gitleaks-results.sarif
+          path: gitleaks.sarif
+          retention-days: 14
 
   dependencies:
     name: OWASP Dependency-Check and CycloneDX SBOM

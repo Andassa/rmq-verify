@@ -40,3 +40,5 @@ First public version.
   of two confirmed publishes.
 - End-to-end tests start the cluster with Docker Compose. Testcontainers 2.0.5 rejects
   `container_name`, which the safety guard requires, so the suite never reached the scenarios.
+- The gitleaks CI job scans the whole Git history. The previous action asked for the parent of
+  the root commit on the first push and exited before scanning anything.
