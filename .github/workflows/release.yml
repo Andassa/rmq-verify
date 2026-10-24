@@ -1,0 +1,41 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Set the release version
+        run: ./mvnw -B -ntp org.codehaus.mojo:versions-maven-plugin:2.23.0:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false -DprocessAllModules
+      - name: Full quality gate
+        run: make verify
+      - name: SBOM
+        run: ./mvnw -B -ntp -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom -DoutputFormat=json -DoutputName=rmq-verify-sbom -DincludeTestScope=false
+      - name: Checksums
+        run: |
+          cp rmq-verify-cli/target/rmq-verify.jar "rmq-verify-${GITHUB_REF_NAME}.jar"
+          sha256sum "rmq-verify-${GITHUB_REF_NAME}.jar" target/rmq-verify-sbom.json > SHA256SUMS
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            rmq-verify-${{ github.ref_name }}.jar
+            target/rmq-verify-sbom.json
+            SHA256SUMS
+          body_path: CHANGELOG.md

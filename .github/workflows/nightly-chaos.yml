@@ -1,0 +1,53 @@
+name: nightly-chaos
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+    inputs:
+      reps:
+        description: Repetitions per scenario
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  chaos:
+    name: scenario matrix on RabbitMQ ${{ matrix.rabbitmq }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        rabbitmq: ['3.13', '4.4']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build
+        run: make build
+      - name: Start the cluster
+        env:
+          RABBITMQ: ${{ matrix.rabbitmq }}
+        run: make up
+      - name: Run every scenario
+        env:
+          REPS: ${{ github.event.inputs.reps || '1' }}
+          DURATION: '60'
+        run: deploy/scripts/chaos.sh
+      - name: Tear down
+        if: always()
+        run: make down
+      - name: Upload runs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: chaos-${{ matrix.rabbitmq }}
+          path: runs/
+          retention-days: 30
