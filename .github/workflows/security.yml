@@ -60,10 +60,23 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Cache NVD data
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-${{ runner.os }}-${{ hashFiles('pom.xml', 'rmq-verify-bom/pom.xml') }}
+          restore-keys: nvd-${{ runner.os }}-
       - name: Dependency-Check (fails on CVSS >= 7) and SBOM
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: ./mvnw -B -ntp -Psecurity -DskipTests install
+        run: |
+          set -euo pipefail
+          # GitHub sets the variable to an empty string when the secret is absent.
+          # Dependency-Check then sends that empty key to the NVD and the client rejects it.
+          if [ -z "${NVD_API_KEY}" ]; then
+            unset NVD_API_KEY
+          fi
+          ./mvnw -B -ntp -Psecurity -DskipTests install
       - name: Upload SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@4bfa242aa49c5f7c6770b98670d354a7dfac05f8 # v3
