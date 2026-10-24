@@ -1,0 +1,146 @@
+{
+  "runId" : "r-20261024-121201-4011",
+  "scenario" : "stream-kill-partition",
+  "repetition" : 1,
+  "rabbitmqVersion" : "4.4.0",
+  "queueKind" : "STREAM",
+  "seed" : 20267025,
+  "startedAt" : "2026-10-24T12:12:16.127345Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "1",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "partition-halves",
+    "startMillis" : 5000,
+    "durationMillis" : 13121,
+    "targets" : [ "rabbit1" ],
+    "detail" : "targets=[rabbit1]"
+  }, {
+    "index" : 1,
+    "nemesis" : "kill-node",
+    "startMillis" : 25768,
+    "durationMillis" : 10630,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  }, {
+    "index" : 2,
+    "nemesis" : "partition-halves",
+    "startMillis" : 41793,
+    "durationMillis" : 9621,
+    "targets" : [ "rabbit2" ],
+    "detail" : "targets=[rabbit2]"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.9% of publishes confirmed, longest unavailability 13000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 1423.169333,
+      "maxUnavailabilityMs" : 13000.0,
+      "meanRecoveryMs" : 493.861625,
+      "recoveriesMeasured" : 3.0,
+      "recoveryMs.0" : 41.7235,
+      "recoveryMs.1" : 16.692042,
+      "recoveryMs.2" : 1423.169333,
+      "successRate" : 0.9988891974451541,
+      "totalUnavailabilityMs" : 13000.0,
+      "unavailableWindows" : 13.0,
+      "windows" : 63.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 3322 messages exposed to 3 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 3322.0,
+      "faults" : 3.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "INVALID",
+    "summary" : "2 message(s) delivered more than once out of 3601",
+    "anomalies" : [ {
+      "kind" : "OFFSET_REPLAY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#518 in rmqv.r-20261024-121201-4011.stream.0 read 3 times, replayed by the same reader at one offset",
+      "evidence" : [ 6150, 6168, 13004 ]
+    }, {
+      "kind" : "DUPLICATE_IN_LOG",
+      "severity" : "VIOLATION",
+      "description" : "publisher-2#534 in rmqv.r-20261024-121201-4011.stream.0 read 4 times at 2 distinct offsets",
+      "evidence" : [ 6169, 6173, 13005, 13009 ]
+    } ],
+    "metrics" : {
+      "deliveries" : 7205.0,
+      "duplicatedMessages" : 2.0,
+      "legitimateRedeliveries" : 1.0,
+      "unexpectedDuplicates" : 1.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 7202 first-time deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 7202.0,
+      "reorderedUnconfirmed" : 0.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 3597 confirmed; 4 indeterminate (4 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 3597.0,
+      "failed" : 0.0,
+      "indeterminate" : 4.0,
+      "indeterminateNotDelivered" : 0.0,
+      "indeterminateSurvived" : 4.0,
+      "lostConfirmed" : 0.0,
+      "published" : 3601.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "30 probe round(s), 12 outside fault windows",
+    "anomalies" : [ ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 30.0,
+      "quietRounds" : 12.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 7205 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 7205.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

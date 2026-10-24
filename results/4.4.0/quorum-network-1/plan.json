@@ -1,0 +1,36 @@
+{
+  "schemaVersion" : 1,
+  "seed" : 20266025,
+  "durationMillis" : 60000,
+  "nodes" : [ "rabbit1", "rabbit2", "rabbit3" ],
+  "events" : [ {
+    "index" : 0,
+    "nemesis" : "packet-loss",
+    "startMillis" : 5000,
+    "durationMillis" : 10916,
+    "targets" : [ "rabbit3" ],
+    "params" : {
+      "lossPercent" : "12"
+    }
+  }, {
+    "index" : 1,
+    "nemesis" : "network-latency",
+    "startMillis" : 21829,
+    "durationMillis" : 14430,
+    "targets" : [ "rabbit1" ],
+    "params" : {
+      "delayMs" : "380",
+      "jitterMs" : "95"
+    }
+  }, {
+    "index" : 2,
+    "nemesis" : "client-toxic",
+    "startMillis" : 41403,
+    "durationMillis" : 12687,
+    "targets" : [ "rabbit1" ],
+    "params" : {
+      "latencyMs" : "1594",
+      "mode" : "cut"
+    }
+  } ]
+}

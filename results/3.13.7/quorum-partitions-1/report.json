@@ -1,0 +1,293 @@
+{
+  "runId" : "r-20261024-113812-3841",
+  "scenario" : "quorum-partitions",
+  "repetition" : 1,
+  "rabbitmqVersion" : "3.13.7",
+  "queueKind" : "QUORUM",
+  "seed" : 20265025,
+  "startedAt" : "2026-10-24T11:38:20.818253Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "2",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "partition-bridge",
+    "startMillis" : 5000,
+    "durationMillis" : 14259,
+    "targets" : [ "rabbit3", "rabbit2", "rabbit1" ],
+    "detail" : "targets=[rabbit3, rabbit2, rabbit1] left=1"
+  }, {
+    "index" : 1,
+    "nemesis" : "partition-bridge",
+    "startMillis" : 24781,
+    "durationMillis" : 11417,
+    "targets" : [ "rabbit1", "rabbit3", "rabbit2" ],
+    "detail" : "targets=[rabbit1, rabbit3, rabbit2] left=1"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.6% of publishes confirmed, longest unavailability 7000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 22.315208,
+      "maxUnavailabilityMs" : 7000.0,
+      "meanRecoveryMs" : 18.9718125,
+      "recoveriesMeasured" : 2.0,
+      "recoveryMs.0" : 15.628417,
+      "recoveryMs.1" : 22.315208,
+      "successRate" : 0.9959319526627219,
+      "totalUnavailabilityMs" : 7000.0,
+      "unavailableWindows" : 7.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 16 messages exposed to 2 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 16.0,
+      "faults" : 2.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "31 message(s) delivered more than once out of 2704",
+    "anomalies" : [ {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#365 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10600, 10714 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#366 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10603, 10717 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#367 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10606, 10720 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#368 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10609, 10723 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#370 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10612, 10726 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#372 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10615, 10729 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#374 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10618, 10732 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#376 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10621, 10735 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#378 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10625, 10738 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#380 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10628, 10741 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#382 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10631, 10744 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#384 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10634, 10747 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#386 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10637, 10752 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#388 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10640, 10755 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#390 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10643, 10758 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#392 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10646, 10761 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#394 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10649, 10764 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#396 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10652, 10767 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#398 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10655, 10770 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#400 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10658, 10773 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#402 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10661, 10776 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#404 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10664, 10779 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#406 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10667, 10782 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#408 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10670, 10785 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#410 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10673, 10788 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#412 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10676, 10791 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#414 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10679, 10794 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#416 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10682, 10797 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#418 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10685, 10800 ]
+    }, {
+      "kind" : "LATE_ORIGINAL_DELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-3#420 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, the unflagged original arrived after a flagged redelivery",
+      "evidence" : [ 10691, 10803 ]
+    }, {
+      "kind" : "REDELIVERY",
+      "severity" : "NOTE",
+      "description" : "publisher-2#522 in rmqv.r-20261024-113812-3841.quorum.0 delivered 2 times, every repeat flagged redelivered",
+      "evidence" : [ 11379, 11392 ]
+    } ],
+    "metrics" : {
+      "deliveries" : 2730.0,
+      "duplicatedMessages" : 31.0,
+      "legitimateRedeliveries" : 31.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 2699 first-time deliveries",
+    "anomalies" : [ {
+      "kind" : "REORDERED_UNCONFIRMED",
+      "severity" : "NOTE",
+      "description" : "consumer-0-0 received publisher-2#118 after #229 in rmqv.r-20261024-113812-3841.quorum.0, at least one of them unconfirmed",
+      "evidence" : [ 5123, 5135 ]
+    }, {
+      "kind" : "REORDERED_UNCONFIRMED",
+      "severity" : "NOTE",
+      "description" : "consumer-0-1 received publisher-1#116 after #230 in rmqv.r-20261024-113812-3841.quorum.0, at least one of them unconfirmed",
+      "evidence" : [ 5118, 5138 ]
+    } ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 2699.0,
+      "reorderedUnconfirmed" : 2.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 2693 confirmed; 11 indeterminate (6 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 2693.0,
+      "failed" : 0.0,
+      "indeterminate" : 11.0,
+      "indeterminateNotDelivered" : 5.0,
+      "indeterminateSurvived" : 6.0,
+      "lostConfirmed" : 0.0,
+      "published" : 2704.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "35 probe round(s), 22 outside fault windows",
+    "anomalies" : [ ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 35.0,
+      "quietRounds" : 22.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 2730 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 2730.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

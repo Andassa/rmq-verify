@@ -1,0 +1,37 @@
+{
+  "schemaVersion" : 1,
+  "seed" : 20266026,
+  "durationMillis" : 60000,
+  "nodes" : [ "rabbit1", "rabbit2", "rabbit3" ],
+  "events" : [ {
+    "index" : 0,
+    "nemesis" : "network-latency",
+    "startMillis" : 5000,
+    "durationMillis" : 10567,
+    "targets" : [ "rabbit3" ],
+    "params" : {
+      "delayMs" : "119",
+      "jitterMs" : "29"
+    }
+  }, {
+    "index" : 1,
+    "nemesis" : "network-latency",
+    "startMillis" : 20636,
+    "durationMillis" : 11396,
+    "targets" : [ "rabbit2" ],
+    "params" : {
+      "delayMs" : "348",
+      "jitterMs" : "87"
+    }
+  }, {
+    "index" : 2,
+    "nemesis" : "network-latency",
+    "startMillis" : 37283,
+    "durationMillis" : 13708,
+    "targets" : [ "rabbit1" ],
+    "params" : {
+      "delayMs" : "403",
+      "jitterMs" : "100"
+    }
+  } ]
+}

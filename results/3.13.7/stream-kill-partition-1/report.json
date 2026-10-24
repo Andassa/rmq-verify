@@ -1,0 +1,141 @@
+{
+  "runId" : "r-20261024-123333-4011",
+  "scenario" : "stream-kill-partition",
+  "repetition" : 1,
+  "rabbitmqVersion" : "3.13.7",
+  "queueKind" : "STREAM",
+  "seed" : 20267025,
+  "startedAt" : "2026-10-24T12:33:39.649343Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "1",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "partition-halves",
+    "startMillis" : 5000,
+    "durationMillis" : 13121,
+    "targets" : [ "rabbit1" ],
+    "detail" : "targets=[rabbit1]"
+  }, {
+    "index" : 1,
+    "nemesis" : "kill-node",
+    "startMillis" : 25768,
+    "durationMillis" : 10630,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  }, {
+    "index" : 2,
+    "nemesis" : "partition-halves",
+    "startMillis" : 41793,
+    "durationMillis" : 9621,
+    "targets" : [ "rabbit2" ],
+    "detail" : "targets=[rabbit2]"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.9% of publishes confirmed, longest unavailability 13000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 4659.002667,
+      "maxUnavailabilityMs" : 13000.0,
+      "meanRecoveryMs" : 1558.6735139999998,
+      "recoveriesMeasured" : 3.0,
+      "recoveryMs.0" : 2.266375,
+      "recoveryMs.1" : 14.7515,
+      "recoveryMs.2" : 4659.002667,
+      "successRate" : 0.9988290398126464,
+      "totalUnavailabilityMs" : 13000.0,
+      "unavailableWindows" : 13.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 3953 messages exposed to 3 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 3953.0,
+      "faults" : 3.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "1 message(s) delivered more than once out of 4270",
+    "anomalies" : [ {
+      "kind" : "OFFSET_REPLAY",
+      "severity" : "NOTE",
+      "description" : "publisher-2#606 in rmqv.r-20261024-123333-4011.stream.0 read 3 times, replayed by the same reader at one offset",
+      "evidence" : [ 7144, 7196, 15342 ]
+    } ],
+    "metrics" : {
+      "deliveries" : 8539.0,
+      "duplicatedMessages" : 1.0,
+      "legitimateRedeliveries" : 1.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 8538 first-time deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 8538.0,
+      "reorderedUnconfirmed" : 0.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 4265 confirmed; 5 indeterminate (4 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 4265.0,
+      "failed" : 0.0,
+      "indeterminate" : 5.0,
+      "indeterminateNotDelivered" : 1.0,
+      "indeterminateSurvived" : 4.0,
+      "lostConfirmed" : 0.0,
+      "published" : 4270.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "31 probe round(s), 13 outside fault windows",
+    "anomalies" : [ ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 31.0,
+      "quietRounds" : 13.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 8539 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 8539.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

@@ -1,0 +1,128 @@
+{
+  "runId" : "r-20261024-113035-3072",
+  "scenario" : "classic-kill",
+  "repetition" : 2,
+  "rabbitmqVersion" : "3.13.7",
+  "queueKind" : "CLASSIC",
+  "seed" : 20263026,
+  "startedAt" : "2026-10-24T11:30:39.161047Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "0",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "kill-node",
+    "startMillis" : 5000,
+    "durationMillis" : 10108,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  }, {
+    "index" : 1,
+    "nemesis" : "kill-node",
+    "startMillis" : 21323,
+    "durationMillis" : 13978,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.9% of publishes confirmed, longest unavailability 4000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 63.919042,
+      "maxUnavailabilityMs" : 4000.0,
+      "meanRecoveryMs" : 35.8076875,
+      "recoveriesMeasured" : 2.0,
+      "recoveryMs.0" : 7.696333,
+      "recoveryMs.1" : 63.919042,
+      "successRate" : 0.9989440337909187,
+      "totalUnavailabilityMs" : 5000.0,
+      "unavailableWindows" : 5.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 2033 messages exposed to 2 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 2033.0,
+      "faults" : 2.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "0 message(s) delivered more than once out of 3788",
+    "anomalies" : [ ],
+    "metrics" : {
+      "deliveries" : 3788.0,
+      "duplicatedMessages" : 0.0,
+      "legitimateRedeliveries" : 0.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 3788 first-time deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 3788.0,
+      "reorderedUnconfirmed" : 0.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 3784 confirmed; 4 indeterminate (4 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 3784.0,
+      "failed" : 0.0,
+      "indeterminate" : 4.0,
+      "indeterminateNotDelivered" : 0.0,
+      "indeterminateSurvived" : 4.0,
+      "lostConfirmed" : 0.0,
+      "published" : 3788.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "48 probe round(s), 29 outside fault windows",
+    "anomalies" : [ ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 48.0,
+      "quietRounds" : 29.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 3788 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 3788.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

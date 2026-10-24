@@ -1,0 +1,133 @@
+{
+  "runId" : "r-20261024-120421-3841",
+  "scenario" : "quorum-partitions",
+  "repetition" : 1,
+  "rabbitmqVersion" : "4.4.0",
+  "queueKind" : "QUORUM",
+  "seed" : 20265025,
+  "startedAt" : "2026-10-24T12:04:26.005262Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "2",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "partition-bridge",
+    "startMillis" : 5000,
+    "durationMillis" : 14259,
+    "targets" : [ "rabbit3", "rabbit2", "rabbit1" ],
+    "detail" : "targets=[rabbit3, rabbit2, rabbit1] left=1"
+  }, {
+    "index" : 1,
+    "nemesis" : "partition-bridge",
+    "startMillis" : 24781,
+    "durationMillis" : 11417,
+    "targets" : [ "rabbit1", "rabbit3", "rabbit2" ],
+    "detail" : "targets=[rabbit1, rabbit3, rabbit2] left=1"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.9% of publishes confirmed, longest unavailability 0 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 11.377042,
+      "maxUnavailabilityMs" : 0.0,
+      "meanRecoveryMs" : 9.0451045,
+      "recoveriesMeasured" : 2.0,
+      "recoveryMs.0" : 6.713167,
+      "recoveryMs.1" : 11.377042,
+      "successRate" : 0.998879677347076,
+      "totalUnavailabilityMs" : 0.0,
+      "unavailableWindows" : 0.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 9 messages exposed to 2 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 9.0,
+      "faults" : 2.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "0 message(s) delivered more than once out of 4463",
+    "anomalies" : [ ],
+    "metrics" : {
+      "deliveries" : 4461.0,
+      "duplicatedMessages" : 0.0,
+      "legitimateRedeliveries" : 0.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 4461 first-time deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 4461.0,
+      "reorderedUnconfirmed" : 0.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 4458 confirmed; 5 indeterminate (3 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 4458.0,
+      "failed" : 0.0,
+      "indeterminate" : 5.0,
+      "indeterminateNotDelivered" : 2.0,
+      "indeterminateSurvived" : 3.0,
+      "lostConfirmed" : 0.0,
+      "published" : 4463.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "31 probe round(s), 18 outside fault windows",
+    "anomalies" : [ {
+      "kind" : "VIEW_DIVERGENCE",
+      "severity" : "NOTE",
+      "description" : "round 5: 3 different running-node sets during a fault",
+      "evidence" : [ 6885, 6887, 6889 ]
+    } ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 31.0,
+      "quietRounds" : 18.0,
+      "viewDivergences" : 1.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 4461 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 4461.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

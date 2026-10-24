@@ -1,0 +1,14 @@
+run r-20261024-115416-2c8a: RabbitMQ 4.4.0, CLASSIC x1, 0 fault(s), seed 20262026
+load phase over, stopping publishers
+cluster healthy, settling for 20 s
+drain complete
+run r-20261024-115416-2c8a: 8890 operations, overall INVALID
+artefacts: /Users/pcco054/Rabit/results/4.4.0/classic-maxlength-control-2
+CHECKER                            VERDICT  SUMMARY
+Availability                       VALID    100.0% of publishes confirmed, longest unavailability 0 ms
+ConfirmedButMissingAfterRecovery   VALID    0 of 0 messages exposed to 0 fault(s) missing after recovery
+DuplicateDeliveries                VALID    0 message(s) delivered more than once out of 4177
+FifoOrdering                       INVALID  0 inversion(s), 4077 gap(s) over 100 first-time deliveries
+LostMessages                       INVALID  4077 lost of 4177 confirmed; 0 indeterminate (0 survived)
+SplitBrainIndicators               VALID    39 probe round(s), 39 outside fault windows
+UnexpectedMessages                 VALID    0 unexpected of 100 deliveries

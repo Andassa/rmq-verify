@@ -1,0 +1,16 @@
+run r-20261024-120555-3842: RabbitMQ 4.4.0, QUORUM x1, 2 fault(s), seed 20265026
+load phase over, stopping publishers
+{"@timestamp":"2026-10-24T15:07:17.973607+03:00","@version":"1","message":"An unexpected connection driver error occurred","logger_name":"com.rabbitmq.client.impl.ForgivingExceptionHandler","thread_name":"AMQP Connection 127.0.0.1:25671","level":"ERROR","level_value":40000,"stack_trace":"com.rabbitmq.client.MissedHeartbeatException: Heartbeat missing with heartbeat = 5 seconds\n\tat com.rabbitmq.client.impl.AMQConnection.handleSocketTimeout(AMQConnection.java:897)\n\tat com.rabbitmq.client.impl.AMQConnection.readFrame(AMQConnection.java:797)\n\tat com.rabbitmq.client.impl.AMQConnection.access$400(AMQConnection.java:49)\n\tat com.rabbitmq.client.impl.AMQConnection$MainLoop.run(AMQConnection.java:716)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"}
+{"@timestamp":"2026-10-24T15:07:17.979587+03:00","@version":"1","message":"An unexpected connection driver error occurred","logger_name":"com.rabbitmq.client.impl.ForgivingExceptionHandler","thread_name":"AMQP Connection 127.0.0.1:25673","level":"ERROR","level_value":40000,"stack_trace":"com.rabbitmq.client.MissedHeartbeatException: Heartbeat missing with heartbeat = 5 seconds\n\tat com.rabbitmq.client.impl.AMQConnection.handleSocketTimeout(AMQConnection.java:897)\n\tat com.rabbitmq.client.impl.AMQConnection.readFrame(AMQConnection.java:797)\n\tat com.rabbitmq.client.impl.AMQConnection.access$400(AMQConnection.java:49)\n\tat com.rabbitmq.client.impl.AMQConnection$MainLoop.run(AMQConnection.java:716)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"}
+cluster healthy, settling for 20 s
+drain complete
+run r-20261024-120555-3842: 15188 operations, overall VALID
+artefacts: /Users/pcco054/Rabit/results/4.4.0/quorum-partitions-2
+CHECKER                            VERDICT  SUMMARY
+Availability                       VALID    100.0% of publishes confirmed, longest unavailability 0 ms
+ConfirmedButMissingAfterRecovery   VALID    0 of 0 messages exposed to 2 fault(s) missing after recovery
+DuplicateDeliveries                VALID    0 message(s) delivered more than once out of 3000
+FifoOrdering                       VALID    0 inversion(s), 0 gap(s) over 3000 first-time deliveries
+LostMessages                       VALID    0 lost of 2999 confirmed; 1 indeterminate (1 survived)
+SplitBrainIndicators               VALID    32 probe round(s), 22 outside fault windows
+UnexpectedMessages                 VALID    0 unexpected of 3000 deliveries

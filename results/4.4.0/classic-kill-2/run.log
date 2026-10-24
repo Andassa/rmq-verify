@@ -1,0 +1,14 @@
+run r-20261024-115752-3072: RabbitMQ 4.4.0, CLASSIC x1, 2 fault(s), seed 20263026
+load phase over, stopping publishers
+cluster healthy, settling for 20 s
+drain complete
+run r-20261024-115752-3072: 30795 operations, overall VALID
+artefacts: /Users/pcco054/Rabit/results/4.4.0/classic-kill-2
+CHECKER                            VERDICT  SUMMARY
+Availability                       VALID    100.0% of publishes confirmed, longest unavailability 0 ms
+ConfirmedButMissingAfterRecovery   VALID    0 of 2305 messages exposed to 2 fault(s) missing after recovery
+DuplicateDeliveries                VALID    0 message(s) delivered more than once out of 6115
+FifoOrdering                       VALID    0 inversion(s), 0 gap(s) over 6115 first-time deliveries
+LostMessages                       VALID    0 lost of 6115 confirmed; 0 indeterminate (0 survived)
+SplitBrainIndicators               VALID    42 probe round(s), 20 outside fault windows
+UnexpectedMessages                 VALID    0 unexpected of 6115 deliveries

@@ -1,0 +1,28 @@
+{
+  "schemaVersion" : 1,
+  "seed" : 20264026,
+  "durationMillis" : 60000,
+  "nodes" : [ "rabbit1", "rabbit2", "rabbit3" ],
+  "events" : [ {
+    "index" : 0,
+    "nemesis" : "kill-node",
+    "startMillis" : 5000,
+    "durationMillis" : 8459,
+    "targets" : [ "rabbit3" ],
+    "params" : { }
+  }, {
+    "index" : 1,
+    "nemesis" : "pause-node",
+    "startMillis" : 19177,
+    "durationMillis" : 8099,
+    "targets" : [ "rabbit3" ],
+    "params" : { }
+  }, {
+    "index" : 2,
+    "nemesis" : "kill-node",
+    "startMillis" : 34419,
+    "durationMillis" : 14838,
+    "targets" : [ "rabbit1" ],
+    "params" : { }
+  } ]
+}

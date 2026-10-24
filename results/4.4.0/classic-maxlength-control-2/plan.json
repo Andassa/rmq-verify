@@ -1,0 +1,7 @@
+{
+  "schemaVersion" : 1,
+  "seed" : 20262026,
+  "durationMillis" : 60000,
+  "nodes" : [ "rabbit1", "rabbit2", "rabbit3" ],
+  "events" : [ ]
+}

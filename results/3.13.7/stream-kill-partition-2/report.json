@@ -1,0 +1,138 @@
+{
+  "runId" : "r-20261024-123511-4012",
+  "scenario" : "stream-kill-partition",
+  "repetition" : 2,
+  "rabbitmqVersion" : "3.13.7",
+  "queueKind" : "STREAM",
+  "seed" : 20267026,
+  "startedAt" : "2026-10-24T12:35:14.728554Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "1",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "partition-halves",
+    "startMillis" : 5000,
+    "durationMillis" : 13179,
+    "targets" : [ "rabbit1" ],
+    "detail" : "targets=[rabbit1]"
+  }, {
+    "index" : 1,
+    "nemesis" : "kill-node",
+    "startMillis" : 24116,
+    "durationMillis" : 10897,
+    "targets" : [ "rabbit1" ],
+    "detail" : "targets=[rabbit1]"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.8% of publishes confirmed, longest unavailability 12000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 16.206666,
+      "maxUnavailabilityMs" : 12000.0,
+      "meanRecoveryMs" : 14.182687,
+      "recoveriesMeasured" : 2.0,
+      "recoveryMs.0" : 16.206666,
+      "recoveryMs.1" : 12.158708,
+      "successRate" : 0.998272884283247,
+      "totalUnavailabilityMs" : 12000.0,
+      "unavailableWindows" : 12.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 1197 messages exposed to 2 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 1197.0,
+      "faults" : 2.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "1 message(s) delivered more than once out of 4632",
+    "anomalies" : [ {
+      "kind" : "OFFSET_REPLAY",
+      "severity" : "NOTE",
+      "description" : "publisher-0#315 in rmqv.r-20261024-123511-4012.stream.0 read 3 times, replayed by the same reader at one offset",
+      "evidence" : [ 3636, 3834, 15282 ]
+    } ],
+    "metrics" : {
+      "deliveries" : 9257.0,
+      "duplicatedMessages" : 1.0,
+      "legitimateRedeliveries" : 1.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 9256 first-time deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 9256.0,
+      "reorderedUnconfirmed" : 0.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 4624 confirmed; 8 indeterminate (4 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 4624.0,
+      "failed" : 0.0,
+      "indeterminate" : 8.0,
+      "indeterminateNotDelivered" : 4.0,
+      "indeterminateSurvived" : 4.0,
+      "lostConfirmed" : 0.0,
+      "published" : 4632.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "36 probe round(s), 20 outside fault windows",
+    "anomalies" : [ {
+      "kind" : "LEADER_CONFLICT",
+      "severity" : "NOTE",
+      "description" : "round 7: rmqv.r-20261024-123511-4012.stream.0 has leaders [rabbit1, rabbit3] during a fault",
+      "evidence" : [ 3640, 3642 ]
+    } ],
+    "metrics" : {
+      "leaderConflicts" : 1.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 36.0,
+      "quietRounds" : 20.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 9257 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 9257.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

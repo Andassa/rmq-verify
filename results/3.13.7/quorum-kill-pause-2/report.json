@@ -1,0 +1,141 @@
+{
+  "runId" : "r-20261024-113521-345a",
+  "scenario" : "quorum-kill-pause",
+  "repetition" : 2,
+  "rabbitmqVersion" : "3.13.7",
+  "queueKind" : "QUORUM",
+  "seed" : 20264026,
+  "startedAt" : "2026-10-24T11:35:27.362139Z",
+  "durationMillis" : 60000,
+  "settings" : {
+    "confirmTimeoutMs" : "5000",
+    "consumersPerQueue" : "0",
+    "durationSeconds" : "60",
+    "maxLength" : "0",
+    "payloadBytes" : "512",
+    "publishers" : "4",
+    "queues" : "1",
+    "ratePerPublisher" : "30.0",
+    "settleSeconds" : "20"
+  },
+  "faults" : [ {
+    "index" : 0,
+    "nemesis" : "kill-node",
+    "startMillis" : 5000,
+    "durationMillis" : 8459,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  }, {
+    "index" : 1,
+    "nemesis" : "pause-node",
+    "startMillis" : 19177,
+    "durationMillis" : 8099,
+    "targets" : [ "rabbit3" ],
+    "detail" : "targets=[rabbit3]"
+  }, {
+    "index" : 2,
+    "nemesis" : "kill-node",
+    "startMillis" : 34419,
+    "durationMillis" : 14838,
+    "targets" : [ "rabbit1" ],
+    "detail" : "targets=[rabbit1]"
+  } ],
+  "verdicts" : [ {
+    "checker" : "Availability",
+    "status" : "VALID",
+    "summary" : "99.7% of publishes confirmed, longest unavailability 10000 ms",
+    "anomalies" : [ ],
+    "metrics" : {
+      "maxRecoveryMs" : 65.733958,
+      "maxUnavailabilityMs" : 10000.0,
+      "meanRecoveryMs" : 36.790305333333336,
+      "recoveriesMeasured" : 3.0,
+      "recoveryMs.0" : 10.492625,
+      "recoveryMs.1" : 34.144333,
+      "recoveryMs.2" : 65.733958,
+      "successRate" : 0.9972705561241897,
+      "totalUnavailabilityMs" : 12000.0,
+      "unavailableWindows" : 12.0,
+      "windows" : 60.0
+    }
+  }, {
+    "checker" : "ConfirmedButMissingAfterRecovery",
+    "status" : "VALID",
+    "summary" : "0 of 2014 messages exposed to 3 fault(s) missing after recovery",
+    "anomalies" : [ ],
+    "metrics" : {
+      "exposedMessages" : 2014.0,
+      "faults" : 3.0,
+      "missingAfterRecovery" : 0.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "DuplicateDeliveries",
+    "status" : "VALID",
+    "summary" : "0 message(s) delivered more than once out of 2931",
+    "anomalies" : [ ],
+    "metrics" : {
+      "deliveries" : 2929.0,
+      "duplicatedMessages" : 0.0,
+      "legitimateRedeliveries" : 0.0,
+      "unexpectedDuplicates" : 0.0
+    }
+  }, {
+    "checker" : "FifoOrdering",
+    "status" : "VALID",
+    "summary" : "0 inversion(s), 0 gap(s) over 2929 first-time deliveries",
+    "anomalies" : [ {
+      "kind" : "REORDERED_UNCONFIRMED",
+      "severity" : "NOTE",
+      "description" : "drain:rmqv.r-20261024-113521-345a.quorum.0 received publisher-2#551 after #552 in rmqv.r-20261024-113521-345a.quorum.0, at least one of them unconfirmed",
+      "evidence" : [ 12097, 12109 ]
+    } ],
+    "metrics" : {
+      "gapChecksSkippedUndrained" : 0.0,
+      "gaps" : 0.0,
+      "inversions" : 0.0,
+      "orderedDeliveries" : 2929.0,
+      "reorderedUnconfirmed" : 1.0
+    }
+  }, {
+    "checker" : "LostMessages",
+    "status" : "VALID",
+    "summary" : "0 lost of 2923 confirmed; 8 indeterminate (6 survived)",
+    "anomalies" : [ ],
+    "metrics" : {
+      "confirmed" : 2923.0,
+      "failed" : 0.0,
+      "indeterminate" : 8.0,
+      "indeterminateNotDelivered" : 2.0,
+      "indeterminateSurvived" : 6.0,
+      "lostConfirmed" : 0.0,
+      "published" : 2931.0,
+      "unverifiable" : 0.0
+    }
+  }, {
+    "checker" : "SplitBrainIndicators",
+    "status" : "VALID",
+    "summary" : "45 probe round(s), 19 outside fault windows",
+    "anomalies" : [ ],
+    "metrics" : {
+      "leaderConflicts" : 0.0,
+      "partitionReports" : 0.0,
+      "probeRounds" : 45.0,
+      "quietRounds" : 19.0,
+      "viewDivergences" : 0.0
+    }
+  }, {
+    "checker" : "UnexpectedMessages",
+    "status" : "VALID",
+    "summary" : "0 unexpected of 2929 deliveries",
+    "anomalies" : [ ],
+    "metrics" : {
+      "corrupt" : 0.0,
+      "deliveries" : 2929.0,
+      "failedButDelivered" : 0.0,
+      "foreign" : 0.0,
+      "mismatched" : 0.0,
+      "unknown" : 0.0
+    }
+  } ]
+}

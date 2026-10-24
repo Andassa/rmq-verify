@@ -1,0 +1,14 @@
+run r-20261024-120807-3c29: RabbitMQ 4.4.0, QUORUM x1, 3 fault(s), seed 20266025
+load phase over, stopping publishers
+cluster healthy, settling for 20 s
+drain complete
+run r-20261024-120807-3c29: 13589 operations, overall VALID
+artefacts: /Users/pcco054/Rabit/results/4.4.0/quorum-network-1
+CHECKER                            VERDICT  SUMMARY
+Availability                       VALID    100.0% of publishes confirmed, longest unavailability 0 ms
+ConfirmedButMissingAfterRecovery   VALID    0 of 0 messages exposed to 3 fault(s) missing after recovery
+DuplicateDeliveries                VALID    0 message(s) delivered more than once out of 2673
+FifoOrdering                       VALID    0 inversion(s), 0 gap(s) over 2673 first-time deliveries
+LostMessages                       VALID    0 lost of 2673 confirmed; 0 indeterminate (0 survived)
+SplitBrainIndicators               VALID    36 probe round(s), 16 outside fault windows
+UnexpectedMessages                 VALID    0 unexpected of 2673 deliveries

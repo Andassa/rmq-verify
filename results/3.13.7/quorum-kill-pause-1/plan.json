@@ -1,0 +1,21 @@
+{
+  "schemaVersion" : 1,
+  "seed" : 20264025,
+  "durationMillis" : 60000,
+  "nodes" : [ "rabbit1", "rabbit2", "rabbit3" ],
+  "events" : [ {
+    "index" : 0,
+    "nemesis" : "kill-node",
+    "startMillis" : 5000,
+    "durationMillis" : 8713,
+    "targets" : [ "rabbit3" ],
+    "params" : { }
+  }, {
+    "index" : 1,
+    "nemesis" : "kill-node",
+    "startMillis" : 22350,
+    "durationMillis" : 9030,
+    "targets" : [ "rabbit2" ],
+    "params" : { }
+  } ]
+}
