@@ -154,6 +154,37 @@ class AmqpClientsTest {
   }
 
   @Test
+  void aConnectionClosingConcurrentlyDoesNotKillThePublisher() throws Exception {
+    when(channel.waitForConfirms(anyLong())).thenThrow(new TimeoutException()).thenReturn(true);
+    doThrow(new com.rabbitmq.client.ShutdownSignalException(true, true, null, connection))
+        .when(connection)
+        .close(1_000);
+    publisher(name -> connection, 2).run();
+    assertThat(confirms()).containsExactly(OpType.INFO, OpType.OK);
+  }
+
+  @Test
+  void anUnexpectedClientErrorLeavesThePublishPendingAndTheLoopAlive() throws Exception {
+    AtomicInteger publishes = new AtomicInteger();
+    doAnswer(
+            inv -> {
+              if (publishes.incrementAndGet() == 1) {
+                throw new IllegalStateException("client bug");
+              }
+              return null;
+            })
+        .when(channel)
+        .basicPublish(eq(""), eq("rmqv.a"), eq(true), any(), any());
+    when(channel.waitForConfirms(anyLong())).thenReturn(true);
+    publisher(name -> connection, 2).run();
+    History h = recorder.snapshot();
+    assertThat(confirms()).containsExactly(OpType.OK);
+    Operation first = h.operations().get(0);
+    assertThat(first.function()).isEqualTo(OpFunction.PUBLISH);
+    assertThat(h.completionOf(first)).isEmpty();
+  }
+
+  @Test
   void connectionFailuresPublishNothing() {
     publisher(
             name -> {
@@ -344,7 +375,7 @@ class AmqpClientsTest {
   void connectorShufflesNodesWithoutRecovery() {
     io.github.andassa.rmqverify.workload.BrokerAccess access =
         new io.github.andassa.rmqverify.workload.BrokerAccess(
-            "127.0.0.1", List.of(1, 2, 3), Map.of(), "rmqv", "u", "p");
+            "127.0.0.1", List.of(1, 2, 3), Map.of(), "rmqv", "u", "p", java.util.Optional.empty());
     RabbitConnector connector = new RabbitConnector(access, 1);
     org.assertj.core.api.Assertions.assertThatThrownBy(() -> connector.open("test"))
         .isInstanceOf(IOException.class);

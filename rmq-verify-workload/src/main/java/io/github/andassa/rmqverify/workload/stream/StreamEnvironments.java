@@ -3,6 +3,7 @@ package io.github.andassa.rmqverify.workload.stream;
 import com.rabbitmq.stream.Address;
 import com.rabbitmq.stream.BackOffDelayPolicy;
 import com.rabbitmq.stream.Environment;
+import com.rabbitmq.stream.EnvironmentBuilder;
 import io.github.andassa.rmqverify.workload.BrokerAccess;
 import java.time.Duration;
 import java.util.List;
@@ -24,9 +25,15 @@ public final class StreamEnvironments {
     List<String> uris =
         access.streamPortByNode().keySet().stream()
             .sorted()
-            .map(node -> "rabbitmq-stream://" + node + ":5552")
+            .map(
+                node ->
+                    (access.tls().isPresent() ? "rabbitmq-stream+tls://" : "rabbitmq-stream://")
+                        + node
+                        + (access.tls().isPresent() ? ":5551" : ":5552"))
             .toList();
-    return Environment.builder()
+    EnvironmentBuilder builder = Environment.builder();
+    access.tls().ifPresent(tls -> builder.tls().sslContext(tls.stream()));
+    return builder
         .uris(uris)
         .username(access.user())
         .password(access.password())

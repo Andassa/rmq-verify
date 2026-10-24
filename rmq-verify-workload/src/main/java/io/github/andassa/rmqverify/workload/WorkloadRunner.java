@@ -175,7 +175,13 @@ public final class WorkloadRunner implements Workload {
       String process = "drain:" + queue.name();
       boolean drained =
           config.kind().isLog()
-              ? new StreamDrainer(environment, recorder, clock, pacer, config.drainTimeout())
+              ? new StreamDrainer(
+                      environment,
+                      recorder,
+                      clock,
+                      pacer,
+                      config.drainTimeout(),
+                      config.drainQuiet())
                   .drain(queue.name(), process)
               : new AmqpDrainer(
                       connector, recorder, clock, pacer, config.drainTimeout(), config.drainQuiet())

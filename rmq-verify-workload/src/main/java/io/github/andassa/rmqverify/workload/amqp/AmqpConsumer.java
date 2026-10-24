@@ -101,6 +101,9 @@ public final class AmqpConsumer implements Worker {
       }
     } catch (IOException | TimeoutException | ShutdownSignalException e) {
       LOG.debug("{}: consumption of {} interrupted: {}", process, queue, e.getMessage());
+    } catch (RuntimeException e) {
+      LOG.warn(
+          "{}: unexpected client failure on {}, reconnecting: {}", process, queue, e.toString());
     } finally {
       AmqpResources.closeQuietly(connection);
     }

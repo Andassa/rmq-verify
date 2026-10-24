@@ -170,11 +170,24 @@ class WorkloadBasicsTest {
   @Test
   void brokerAccessHidesThePassword() {
     BrokerAccess access =
-        new BrokerAccess("127.0.0.1", List.of(1), Map.of("rabbit1", 2), "v", "u", "hunter2");
+        new BrokerAccess(
+            "127.0.0.1",
+            List.of(1),
+            Map.of("rabbit1", 2),
+            "v",
+            "u",
+            "hunter2",
+            java.util.Optional.empty());
     assertThat(access.toString()).doesNotContain("hunter2");
-    assertThatThrownBy(() -> new BrokerAccess("h", List.of(), Map.of(), "v", "u", "p"))
+    assertThatThrownBy(
+            () ->
+                new BrokerAccess(
+                    "h", List.of(), Map.of(), "v", "u", "p", java.util.Optional.empty()))
         .hasMessageContaining("AMQP port");
-    assertThatThrownBy(() -> new BrokerAccess(" ", List.of(1), Map.of(), "v", "u", "p"))
+    assertThatThrownBy(
+            () ->
+                new BrokerAccess(
+                    " ", List.of(1), Map.of(), "v", "u", "p", java.util.Optional.empty()))
         .hasMessageContaining("required");
   }
 

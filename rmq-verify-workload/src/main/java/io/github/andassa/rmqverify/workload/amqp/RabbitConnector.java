@@ -37,6 +37,13 @@ public final class RabbitConnector implements AmqpConnector {
     factory.setConnectionTimeout(5_000);
     factory.setHandshakeTimeout(5_000);
     factory.setShutdownTimeout(2_000);
+    access
+        .tls()
+        .ifPresent(
+            tls -> {
+              factory.useSslProtocol(tls.amqp());
+              factory.enableHostnameVerification();
+            });
     List<Address> list = new ArrayList<>();
     for (int port : access.amqpPorts()) {
       list.add(new Address(access.host(), port));

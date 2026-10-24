@@ -12,6 +12,7 @@ import java.util.Map;
  * @param vhost virtual host
  * @param user application user
  * @param password application password
+ * @param tls TLS material, empty for plain connections
  */
 public record BrokerAccess(
     String host,
@@ -19,11 +20,17 @@ public record BrokerAccess(
     Map<String, Integer> streamPortByNode,
     String vhost,
     String user,
-    String password) {
+    String password,
+    java.util.Optional<Tls> tls) {
 
   /** Copies the collections and checks presence. */
   public BrokerAccess {
-    if (host == null || host.isBlank() || vhost == null || user == null || password == null) {
+    if (host == null
+        || host.isBlank()
+        || vhost == null
+        || user == null
+        || password == null
+        || tls == null) {
       throw new IllegalArgumentException("host, vhost, user and password are required");
     }
     amqpPorts = List.copyOf(amqpPorts);
@@ -45,6 +52,8 @@ public record BrokerAccess(
         + vhost
         + ", user="
         + user
-        + ", password=***]";
+        + ", password=***, tls="
+        + tls.isPresent()
+        + "]";
   }
 }

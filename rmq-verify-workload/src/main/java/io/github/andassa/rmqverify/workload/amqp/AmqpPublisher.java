@@ -93,9 +93,16 @@ public final class AmqpPublisher implements Worker {
         if (channel == null && !connect()) {
           continue;
         }
-        publish(
-            new Message(runId, process, planned.queue(), planned.sequence(), planned.uuid()),
-            planned.size());
+        try {
+          publish(
+              new Message(runId, process, planned.queue(), planned.sequence(), planned.uuid()),
+              planned.size());
+        } catch (RuntimeException e) {
+          // A client bug or an unexpected client state must not end the workload: the invocation
+          // stays pending in the history, which every checker treats as indeterminate.
+          LOG.warn("{}: unexpected client failure, reconnecting: {}", process, e.toString());
+          disconnect();
+        }
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

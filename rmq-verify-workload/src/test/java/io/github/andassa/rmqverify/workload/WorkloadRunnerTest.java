@@ -32,7 +32,14 @@ import org.junit.jupiter.api.Test;
 class WorkloadRunnerTest {
 
   private static final BrokerAccess ACCESS =
-      new BrokerAccess("127.0.0.1", List.of(1), Map.of("rabbit1", 2), "rmqv", "u", "p");
+      new BrokerAccess(
+          "127.0.0.1",
+          List.of(1),
+          Map.of("rabbit1", 2),
+          "rmqv",
+          "u",
+          "p",
+          java.util.Optional.empty());
   private static final Pacer FAST = d -> Thread.sleep(1);
 
   private static HistoryRecorder recorder(WorkloadConfig config) {
@@ -91,7 +98,10 @@ class WorkloadRunnerTest {
     when(environment.consumerBuilder()).thenReturn(consumers);
     when(consumers.build()).thenReturn(mock(Consumer.class));
     when(environment.producerBuilder()).thenThrow(new com.rabbitmq.stream.StreamException("down"));
-    when(environment.queryStreamStats(anyString())).thenThrow(new NoOffsetException("empty"));
+    com.rabbitmq.stream.StreamStats empty = mock(com.rabbitmq.stream.StreamStats.class);
+    when(empty.committedOffset()).thenThrow(new NoOffsetException("empty"));
+    when(empty.committedChunkId()).thenThrow(new NoOffsetException("empty"));
+    when(environment.queryStreamStats(anyString())).thenReturn(empty);
     WorkloadConfig config = WorkloadBasicsTest.config(QueueKind.STREAM, 1, 3);
     HistoryRecorder recorder = recorder(config);
     WorkloadRunner runner =

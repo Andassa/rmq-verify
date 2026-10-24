@@ -54,7 +54,14 @@ class StreamClientsTest {
   @Test
   void addressResolverMapsAdvertisedNodesToTheirProxies() {
     BrokerAccess access =
-        new BrokerAccess("127.0.0.1", List.of(1), Map.of("rabbit2", 25552), "rmqv", "u", "p");
+        new BrokerAccess(
+            "127.0.0.1",
+            List.of(1),
+            Map.of("rabbit2", 25552),
+            "rmqv",
+            "u",
+            "p",
+            java.util.Optional.empty());
     assertThat(StreamEnvironments.resolve(access, new Address("rabbit2", 5552)))
         .isEqualTo(new Address("127.0.0.1", 25552));
     assertThat(StreamEnvironments.resolve(access, new Address("elsewhere", 5552)))
@@ -220,7 +227,8 @@ class StreamClientsTest {
                 handler[0].handle(context(1), body(new Message("run-1", "p", "rmqv.s", 1, "b")));
               }
             },
-            Duration.ofSeconds(10));
+            Duration.ofSeconds(10),
+            Duration.ofSeconds(1));
     assertThat(drainer.drain("rmqv.s", "drain:rmqv.s")).isTrue();
     Operation last = recorder.snapshot().operations().getLast();
     assertThat(last.type()).isEqualTo(OpType.OK);
@@ -230,9 +238,19 @@ class StreamClientsTest {
   @Test
   void drainerHandlesEmptyUnavailableAndUnreachedStreams() throws Exception {
     StreamDrainer drainer =
-        new StreamDrainer(environment, recorder, clock, clock::advance, Duration.ofSeconds(2));
-    when(environment.queryStreamStats("rmqv.s")).thenThrow(new NoOffsetException("empty"));
+        new StreamDrainer(
+            environment,
+            recorder,
+            clock,
+            clock::advance,
+            Duration.ofSeconds(2),
+            Duration.ofSeconds(1));
+    StreamStats empty = mock(StreamStats.class);
+    when(empty.committedOffset()).thenThrow(new NoOffsetException("no committed offset"));
+    when(empty.committedChunkId()).thenThrow(new NoOffsetException("no chunk"));
+    when(environment.queryStreamStats("rmqv.s")).thenReturn(empty);
     assertThat(drainer.drain("rmqv.s", "drain:a")).isTrue();
+    org.mockito.Mockito.reset(environment);
     org.mockito.Mockito.doThrow(new StreamException("down"))
         .when(environment)
         .queryStreamStats("rmqv.s");
@@ -253,9 +271,49 @@ class StreamClientsTest {
                 .map(Operation::error))
         .containsExactly(
             "",
-            "committed offset unavailable",
+            "stream statistics unavailable",
             "offset 10 not reached within PT2S",
             "drain failed: cannot subscribe");
+  }
+
+  @Test
+  void withoutACommittedOffsetTheDrainReadsTheLastChunkUntilQuiet() throws Exception {
+    StreamStats stats = mock(StreamStats.class);
+    when(stats.committedOffset()).thenThrow(new NoOffsetException("not reported by RabbitMQ 3.13"));
+    when(stats.committedChunkId()).thenReturn(1L);
+    when(environment.queryStreamStats("rmqv.s")).thenReturn(stats);
+    ConsumerBuilder builder = mock(ConsumerBuilder.class, RETURNS_SELF);
+    when(environment.consumerBuilder()).thenReturn(builder);
+    MessageHandler[] handler = new MessageHandler[1];
+    when(builder.messageHandler(any()))
+        .thenAnswer(
+            inv -> {
+              handler[0] = inv.getArgument(0);
+              return builder;
+            });
+    when(builder.build()).thenReturn(mock(Consumer.class));
+    AtomicInteger polls = new AtomicInteger();
+    StreamDrainer drainer =
+        new StreamDrainer(
+            environment,
+            recorder,
+            clock,
+            d -> {
+              clock.advance(d);
+              if (polls.incrementAndGet() == 1) {
+                for (int offset = 0; offset < 3; offset++) {
+                  handler[0].handle(
+                      context(offset),
+                      body(new Message("run-1", "p", "rmqv.s", offset, "m" + offset)));
+                }
+              }
+            },
+            Duration.ofSeconds(10),
+            Duration.ofSeconds(1));
+    assertThat(drainer.drain("rmqv.s", "drain:rmqv.s")).isTrue();
+    Operation last = recorder.snapshot().operations().getLast();
+    assertThat(((Value.Drain) last.value()).delivered()).isEqualTo(3);
+    assertThat(polls.get()).isGreaterThanOrEqualTo(5);
   }
 
   private static MessageHandler.Context context(long offset) {

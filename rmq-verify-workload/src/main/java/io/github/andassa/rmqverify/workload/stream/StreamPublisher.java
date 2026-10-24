@@ -95,10 +95,16 @@ public final class StreamPublisher implements Worker {
         }
         Producer producer = producer(planned.queue());
         if (producer != null) {
-          publish(
-              producer,
-              new Message(runId, process, planned.queue(), planned.sequence(), planned.uuid()),
-              planned.size());
+          try {
+            publish(
+                producer,
+                new Message(runId, process, planned.queue(), planned.sequence(), planned.uuid()),
+                planned.size());
+          } catch (RuntimeException e) {
+            // Same policy as the AMQP publisher: never end the workload on a client surprise.
+            LOG.warn("{}: unexpected client failure, new producer: {}", process, e.toString());
+            dropProducer(planned.queue());
+          }
         }
       }
     } catch (InterruptedException e) {
