@@ -11,4 +11,66 @@
   <artifactId>rmq-verify-e2e</artifactId>
   <name>rmq-verify :: e2e</name>
   <description>End-to-end tests against a real cluster started with Testcontainers.</description>
+
+  <properties>
+    <!-- End-to-end tests need Docker and minutes of wall time: they run with -Pe2e (make e2e, CI). -->
+    <skipITs>true</skipITs>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.andassa</groupId>
+      <artifactId>rmq-verify-cli</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <skipITs>${skipITs}</skipITs>
+          <includes>
+            <include>**/*IT.java</include>
+          </includes>
+          <environmentVariables>
+            <RMQV_ROOT>${maven.multiModuleProjectDirectory}</RMQV_ROOT>
+          </environmentVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>e2e</id>
+      <properties>
+        <skipITs>false</skipITs>
+        <jacoco.skip>true</jacoco.skip>
+      </properties>
+    </profile>
+  </profiles>
 </project>
