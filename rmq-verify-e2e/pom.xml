@@ -10,7 +10,7 @@
 
   <artifactId>rmq-verify-e2e</artifactId>
   <name>rmq-verify :: e2e</name>
-  <description>End-to-end tests against a real cluster started with Testcontainers.</description>
+  <description>End-to-end tests against a real cluster started with Docker Compose.</description>
 
   <properties>
     <!-- End-to-end tests need Docker and minutes of wall time: they run with -Pe2e (make e2e, CI). -->
@@ -30,11 +30,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -32,7 +32,7 @@ TLS ?= 0
 export RABBITMQ TLS
 
 .PHONY: e2e
-e2e: build ## End-to-end tests: real cluster via Testcontainers, real faults (needs Docker, cluster down)
+e2e: build ## End-to-end tests: real cluster via Docker Compose, real faults (needs Docker, cluster down)
 	$(MVN) $(MVN_FLAGS) -Pe2e -pl rmq-verify-e2e verify
 
 .PHONY: up

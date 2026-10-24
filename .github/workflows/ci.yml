@@ -58,7 +58,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Testcontainers scenarios
+      - name: End-to-end scenarios
         env:
           RABBITMQ: ${{ matrix.rabbitmq }}
         run: make e2e

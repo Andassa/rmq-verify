@@ -128,7 +128,7 @@ flowchart LR
 | `make demo` | one scenario under faults and its HTML report |
 | `make chaos` | one pass of the scenario matrix on the running cluster |
 | `make bench` | full matrix on 3.13 and 4.4, regenerates `RESULTS.md` and the table above |
-| `make e2e` | Testcontainers end-to-end tests with real faults |
+| `make e2e` | End-to-end tests on a real cluster, with real faults |
 | `make security` | SBOM, OWASP Dependency-Check, gitleaks, Trivy |
 | `make report`, `make mutation`, `make fmt`, `make clean`, `make help` | the rest |
 

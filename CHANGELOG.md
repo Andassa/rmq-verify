@@ -38,3 +38,5 @@ First public version.
 - A late unflagged original delivery and a reorder of an unconfirmed publish are notes. A
   violation still requires two unflagged deliveries, a duplicated stream offset, or an inversion
   of two confirmed publishes.
+- End-to-end tests start the cluster with Docker Compose. Testcontainers 2.0.5 rejects
+  `container_name`, which the safety guard requires, so the suite never reached the scenarios.

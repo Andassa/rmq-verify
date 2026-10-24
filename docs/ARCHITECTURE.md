@@ -39,7 +39,7 @@ flowchart LR
 | `rmq-verify-report` | Rendering of runs and matrices | `model` |
 | `rmq-verify-cli` | Wiring and commands (`run`/`replay`, `plan`, `check`, `report`, `minimize`) | everything |
 | `rmq-verify-jmh` | Throughput benchmarks of the checkers | `model`, `checker` |
-| `rmq-verify-e2e` | Real-cluster scenarios with Testcontainers | everything |
+| `rmq-verify-e2e` | Real-cluster scenarios started with Docker Compose | everything |
 
 ## Run lifecycle
 

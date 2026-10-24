@@ -19,7 +19,8 @@ power. Reproducible builds and results also require stable versions.
   `slf4j` with `logback` and the Logstash encoder (JSON logs). Docker is driven through its CLI
   and HTTP through `java.net.http` instead of adding clients (ADR-0012).
 - Test-only: JUnit, AssertJ, jqwik, Mockito (only for the broker client interfaces), ArchUnit,
-  Testcontainers, JMH.
+  JMH. End-to-end tests start `deploy/docker-compose.yml` with the Docker CLI. Testcontainers
+  2.0.5 rejects `container_name`, which the safety guard and the scripts require.
 - Updates arrive through Dependabot (Maven, Actions, Dockerfile) and must pass `make verify`.
   OWASP Dependency-Check fails the security workflow at CVSS 7; Trivy reports image findings;
   each release ships a CycloneDX SBOM.

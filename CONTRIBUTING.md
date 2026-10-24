@@ -12,7 +12,7 @@ Make, `openssl`.
 make verify          # the full quality gate, no Docker needed
 make up              # three-node RabbitMQ 4.4 cluster + Toxiproxy (RABBITMQ=3.13 for 3.13)
 make demo            # one scenario under faults, opens the HTML report
-make e2e             # Testcontainers end-to-end tests (cluster must be down)
+make e2e             # end-to-end tests on a real cluster (the cluster must be down)
 make down
 ```
 

@@ -15,7 +15,6 @@ import io.github.andassa.rmqverify.model.Verdict;
 import io.github.andassa.rmqverify.model.VerdictStatus;
 import io.github.andassa.rmqverify.nemesis.FaultEvent;
 import io.github.andassa.rmqverify.nemesis.FaultPlan;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -31,24 +31,25 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.testcontainers.containers.ComposeContainer;
 
 /**
- * Real cluster, real faults. The cluster of {@code deploy/docker-compose.yml} is started by
- * Testcontainers with fresh random credentials; the checkers must detect a loss we cause on purpose
+ * Real cluster, real faults. {@code deploy/docker-compose.yml} is started with Docker Compose, the
+ * same way as {@code make up}, because that file sets {@code container_name} and Testcontainers
+ * rejects the property. Credentials are random. The checkers must detect a loss caused on purpose
  * and must stay silent on a healthy run and across a real {@code kill -9} of a quorum queue member.
  */
 class ClusterIT {
 
   private static final List<String> NODES = List.of("rabbit1", "rabbit2", "rabbit3");
-  private static ComposeContainer compose;
+  private static final SystemProcessRunner PROCESSES = new SystemProcessRunner();
+  private static Path root;
   private static Path envFile;
+  private static boolean started;
 
   @BeforeAll
   static void startCluster(@TempDir Path dir) throws Exception {
-    Path root =
-        Path.of(System.getenv().getOrDefault("RMQV_ROOT", "..")).toAbsolutePath().normalize();
-    DockerCli docker = new DockerCli(new SystemProcessRunner());
+    root = Path.of(System.getenv().getOrDefault("RMQV_ROOT", "..")).toAbsolutePath().normalize();
+    DockerCli docker = new DockerCli(PROCESSES);
     ProcessResult running =
         new SystemProcessRunner()
             .run(
@@ -70,13 +71,12 @@ class ClusterIT {
     env.put("RMQV_APP_USER", "rmqv_app");
     env.put("RMQV_APP_PASSWORD", secret());
     env.put("RMQV_ERLANG_COOKIE", secret().toUpperCase(java.util.Locale.ROOT));
-    compose =
-        new ComposeContainer(new File(root.resolve("deploy/docker-compose.yml").toString()))
-            .withEnv(env)
-            .withBuild(true)
-            .withRemoveVolumes(true)
-            .withStartupTimeout(Duration.ofMinutes(10));
-    compose.start();
+    envFile = Files.createTempFile("rmqv-e2e", ".env");
+    StringBuilder content = new StringBuilder();
+    env.forEach((k, v) -> content.append(k).append('=').append(v).append('\n'));
+    Files.writeString(envFile, content, StandardCharsets.UTF_8);
+    started = true;
+    compose("up", "-d", "--build", "--wait", "--wait-timeout", "300");
     ClusterControl cluster =
         new DockerClusterControl(
             Topology.local(),
@@ -96,20 +96,32 @@ class ClusterIT {
         "^(rmqv\\..*|amq\\.default)$",
         "^rmqv\\..*");
     rabbitmqctl(docker, "set_permissions", "-p", "rmqv", "rmqv_admin", ".*", ".*", ".*");
-    envFile = Files.createTempFile("rmqv-e2e", ".env");
-    StringBuilder content = new StringBuilder();
-    env.forEach((k, v) -> content.append(k).append('=').append(v).append('\n'));
-    Files.writeString(envFile, content, StandardCharsets.UTF_8);
   }
 
   @AfterAll
   static void stopCluster() throws Exception {
-    if (compose != null) {
-      compose.stop();
+    if (started) {
+      compose("down", "-v", "--remove-orphans");
     }
     if (envFile != null) {
       Files.deleteIfExists(envFile);
     }
+  }
+
+  /** Runs Docker Compose against {@code deploy/docker-compose.yml} and the temporary env file. */
+  private static void compose(String... args) throws Exception {
+    List<String> command = new ArrayList<>();
+    command.add("docker");
+    command.add("compose");
+    command.add("--project-directory");
+    command.add(root.resolve("deploy").toString());
+    command.add("-f");
+    command.add(root.resolve("deploy/docker-compose.yml").toString());
+    command.add("--env-file");
+    command.add(envFile.toString());
+    command.addAll(List.of(args));
+    ProcessResult result = PROCESSES.run(command, Duration.ofMinutes(10));
+    assertThat(result.succeeded()).as(String.join(" ", command) + "\n" + result.stderr()).isTrue();
   }
 
   private static void rabbitmqctl(DockerCli docker, String... args) throws Exception {
