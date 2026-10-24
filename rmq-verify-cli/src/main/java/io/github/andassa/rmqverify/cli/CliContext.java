@@ -17,19 +17,26 @@ import io.github.andassa.rmqverify.nemesis.NemesisRunner;
 import io.github.andassa.rmqverify.nemesis.ShutdownHooks;
 import io.github.andassa.rmqverify.nemesis.Sleeper;
 import io.github.andassa.rmqverify.workload.BrokerAccess;
+import io.github.andassa.rmqverify.workload.Tls;
+import io.github.andassa.rmqverify.workload.WorkloadException;
 import io.github.andassa.rmqverify.workload.WorkloadRunner;
 import io.github.andassa.rmqverify.workload.amqp.RabbitConnector;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /** Wires the real adapters (Docker, Toxiproxy, AMQP, stream) from {@code .env} and the topology. */
 final class CliContext {
 
   private CliContext() {}
 
-  static Experiment experiment(Path envFile, PrintWriter out) throws ClusterException {
+  static Experiment experiment(RunOptions options, PrintWriter out)
+      throws ClusterException, WorkloadException {
+    Path envFile = options.envFile;
+    Optional<Tls> tls =
+        options.tlsCa == null ? Optional.empty() : Optional.of(Tls.fromCa(options.tlsCa));
     Map<String, String> env = EnvFile.withProcessEnv(envFile, System.getenv());
     Topology topology = Topology.local();
     Credentials admin = Credentials.from(env, "RMQV_ADMIN");
@@ -51,7 +58,8 @@ final class CliContext {
             streamPorts,
             topology.vhost(),
             app.user(),
-            app.password());
+            app.password(),
+            tls);
     NemesisRegistry registry = NemesisRegistry.load();
     NanoClock clock = NanoClock.system();
     WorkloadFactory workloads =

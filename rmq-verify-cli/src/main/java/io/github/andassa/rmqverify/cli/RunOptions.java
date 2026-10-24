@@ -107,6 +107,11 @@ final class RunOptions {
       description = "Credentials file (default: ${DEFAULT-VALUE}).")
   Path envFile;
 
+  @Option(
+      names = "--tls-ca",
+      description = "CA certificate (PEM) to connect with TLS, for make up TLS=1.")
+  Path tlsCa;
+
   ExperimentSettings settings(long seed) {
     if (queues < 1
         || queues > 16

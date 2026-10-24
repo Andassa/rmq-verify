@@ -246,5 +246,15 @@ class ReportRenderingTest {
             "run `r-<1>`, LostMessages: 27 violation(s)",
             "How to read these results");
     assertThat(page.markdown(Matrix.of(List.of(valid)))).contains("No violation was observed");
+    String readme =
+        "# Title\n" + ResultsPage.START + "\nold numbers\n" + ResultsPage.END + "\nrest\n";
+    String updated = page.updateBlock(readme, matrix);
+    assertThat(updated)
+        .startsWith("# Title\n" + ResultsPage.START)
+        .endsWith(ResultsPage.END + "\nrest\n")
+        .contains("| `quorum-kill` | **1/2** invalid", "commit `abc1234`")
+        .doesNotContain("old numbers", "## Matrix");
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> page.updateBlock("no markers", matrix))
+        .hasMessageContaining("markers");
   }
 }

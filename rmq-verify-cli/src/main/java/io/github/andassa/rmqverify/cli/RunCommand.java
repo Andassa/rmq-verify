@@ -42,6 +42,8 @@ public final class RunCommand implements Callable<Integer> {
 
   @Spec CommandSpec spec;
 
+  ExperimentFactory experiments = CliContext::experiment;
+
   @Override
   public Integer call() throws Exception {
     PrintWriter out = spec.commandLine().getOut();
@@ -54,8 +56,7 @@ public final class RunCommand implements Callable<Integer> {
       faultPlan =
           faults.plan(registry, effectiveSeed, settings.duration(), Topology.local().nodeNames());
     }
-    Experiment.RunOutcome outcome =
-        CliContext.experiment(run.envFile, out).run(settings, faultPlan);
+    Experiment.RunOutcome outcome = experiments.create(run, out).run(settings, faultPlan);
     RunArtifacts.write(outcome.directory(), outcome.summary(), outcome.history());
     out.println("artefacts: " + outcome.directory().toAbsolutePath());
     return ExitCodes.of(VerdictTable.print(outcome.summary().verdicts(), out));

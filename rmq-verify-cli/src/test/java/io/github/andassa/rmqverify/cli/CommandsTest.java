@@ -3,16 +3,23 @@ package io.github.andassa.rmqverify.cli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.andassa.rmqverify.checker.CheckerContext;
+import io.github.andassa.rmqverify.checker.Checkers;
 import io.github.andassa.rmqverify.model.History;
 import io.github.andassa.rmqverify.model.Message;
 import io.github.andassa.rmqverify.model.OpType;
 import io.github.andassa.rmqverify.model.VerdictStatus;
+import io.github.andassa.rmqverify.model.jsonl.JsonlHistoryReader;
 import io.github.andassa.rmqverify.model.jsonl.JsonlHistoryWriter;
 import io.github.andassa.rmqverify.model.testkit.HistoryFixture;
+import io.github.andassa.rmqverify.report.ReportJson;
+import io.github.andassa.rmqverify.report.RunSummary;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
@@ -121,6 +128,68 @@ class CommandsTest {
     assertThat(err.toString()).contains("RMQV_ADMIN_USER");
     assertThat(execute("replay", "--plan", dir.resolve("absent.json").toString()))
         .isEqualTo(ExitCodes.FAILURE);
+  }
+
+  @Test
+  void reportRendersARunAndTheMatrix(@TempDir Path dir) throws Exception {
+    Path run = Files.createDirectories(dir.resolve("results/4.4.0/s-1"));
+    Files.copy(history(dir, false), run.resolve("history.jsonl"));
+    History h = new JsonlHistoryReader().read(run.resolve("history.jsonl"));
+    RunSummary summary =
+        new RunSummary(
+            "r-1",
+            "s",
+            1,
+            "4.4.0",
+            "QUORUM",
+            1,
+            "t",
+            5000,
+            new TreeMap<>(),
+            List.of(),
+            Checkers.load().checkAll(h, CheckerContext.defaults()));
+    new ReportJson().write(summary, run.resolve("report.json"));
+    assertThat(execute("report", "--run", run.toString()))
+        .isEqualTo(ExitCodes.of(summary.overall()));
+    assertThat(run.resolve("report.html")).exists();
+    Path images =
+        Files.writeString(dir.resolve("images.env"), "RABBITMQ_4_4=rabbitmq:4.4.0@sha256:abc\n");
+    Path results = dir.resolve("RESULTS.md");
+    assertThat(
+            execute(
+                "report",
+                "--matrix",
+                dir.resolve("results").toString(),
+                "--results-md",
+                results.toString(),
+                "--images",
+                images.toString(),
+                "--commit",
+                "deadbee"))
+        .isZero();
+    assertThat(Files.readString(results))
+        .contains("commit `deadbee`", "`s`", "rabbitmq:4.4.0@sha256:abc");
+    assertThat(execute("report")).isEqualTo(ExitCodes.USAGE);
+  }
+
+  @Test
+  void minimizeNeedsAPlanAndCredentials(@TempDir Path dir) throws Exception {
+    assertThat(execute("minimize", "--checker", "LostMessages")).isEqualTo(ExitCodes.USAGE);
+    Path plan = dir.resolve("plan.json");
+    execute("plan", "--seed", "3", "--nemesis", "kill-node", "--out", plan.toString());
+    assertThat(
+            execute(
+                "minimize",
+                "--plan",
+                plan.toString(),
+                "--checker",
+                "LostMessages",
+                "--env-file",
+                dir.resolve("none.env").toString(),
+                "--out",
+                dir.resolve("m").toString()))
+        .isEqualTo(ExitCodes.FAILURE);
+    assertThat(err.toString()).contains("RMQV_ADMIN_USER");
   }
 
   @Test
