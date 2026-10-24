@@ -38,7 +38,7 @@ jobs:
         run: gitleaks detect --source . --redact --no-banner --exit-code 2 --report-format sarif --report-path gitleaks.sarif
       - name: Upload the gitleaks report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: gitleaks-results.sarif
           path: gitleaks.sarif
@@ -72,7 +72,7 @@ jobs:
           category: dependency-check
       - name: Upload SBOM and reports
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sbom-and-dependency-check
           path: |
