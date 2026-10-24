@@ -1,0 +1,9 @@
+io.github.andassa.rmqverify.nemesis.faults.ClientToxic
+io.github.andassa.rmqverify.nemesis.faults.KillNode
+io.github.andassa.rmqverify.nemesis.faults.NetworkLatency
+io.github.andassa.rmqverify.nemesis.faults.PacketLoss
+io.github.andassa.rmqverify.nemesis.faults.PartitionBridge
+io.github.andassa.rmqverify.nemesis.faults.PartitionHalves
+io.github.andassa.rmqverify.nemesis.faults.PartitionIsolate
+io.github.andassa.rmqverify.nemesis.faults.PauseNode
+io.github.andassa.rmqverify.nemesis.faults.RollingRestart
