@@ -52,7 +52,7 @@
 
     <!-- Build and quality plugins -->
     <compiler-plugin.version>3.16.0</compiler-plugin.version>
-    <surefire.version>3.6.0</surefire.version>
+    <surefire.version>3.6.1</surefire.version>
     <jar-plugin.version>3.5.1</jar-plugin.version>
     <install-plugin.version>3.2.0</install-plugin.version>
     <deploy-plugin.version>3.2.0</deploy-plugin.version>
