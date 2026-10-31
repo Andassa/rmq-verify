@@ -39,7 +39,7 @@
     <!-- Jackson 3, brought by the Logstash encoder. 3.0.1 is affected by CVE-2026-29062 and CVE-2026-54512. -->
     <jackson3.version>3.2.4</jackson3.version>
     <slf4j.version>2.0.20</slf4j.version>
-    <logback.version>1.6.5</logback.version>
+    <logback.version>1.6.6</logback.version>
     <logstash-encoder.version>9.0</logstash-encoder.version>
 
     <!-- Test dependencies -->
