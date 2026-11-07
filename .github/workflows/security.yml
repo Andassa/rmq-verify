@@ -80,7 +80,7 @@ jobs:
           ./mvnw -B -ntp -Psecurity -DskipTests install
       - name: Upload SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@4bfa242aa49c5f7c6770b98670d354a7dfac05f8 # v3
+        uses: github/codeql-action/upload-sarif@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
           sarif_file: target/dependency-check-report.sarif
           category: dependency-check
@@ -133,7 +133,7 @@ jobs:
           ignore-unfixed: true
           format: sarif
           output: trivy-${{ matrix.image }}.sarif
-      - uses: github/codeql-action/upload-sarif@4bfa242aa49c5f7c6770b98670d354a7dfac05f8 # v3
+      - uses: github/codeql-action/upload-sarif@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
           sarif_file: trivy-${{ matrix.image }}.sarif
           category: trivy-${{ matrix.image }}
